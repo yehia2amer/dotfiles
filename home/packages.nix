@@ -133,6 +133,9 @@
     trivy
     trufflehog
 
+    # Dotfiles Management
+    chezmoi
+
     # Shell & Terminal
     atuin
     carapace

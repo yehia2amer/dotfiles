@@ -4,29 +4,44 @@ LICENSE
 .git
 
 {{ if ne .machine "MacBookProM3" }}
-dot_advLdap
-dot_cloudflared
-dot_cursor
-private_Library
-dot_minirc.synology
-dot_codewiki
+.advLdap
+.cloudflared
+.cursor
+Library
+.minirc.synology
+.codewiki
 {{ end }}
 
 {{ if ne .os "darwin" }}
-private_Library
-dot_config/alacritty
+Library
+.config/alacritty
 {{ end }}
 
 {{ if ne .work true }}
-dot_advLdap
-dot_codewiki
+.advLdap
+.codewiki
+{{ end }}
+
+{{ if eq .machine "nixos-wsl" }}
+# WSL has no gnome-keyring — skip secret-dependent templates until secrets are populated
+.bb9
+.codex
+.multica
+.claude/settings.json
+.config/gitconfigs/Work
+.codewiki
+.config/glab-cli
+.agents/scripts
+.config/nushell/env.nu
+.config/zsh/local.zsh
+.zshenv
 {{ end }}
 
 {{ if eq .machine "nixos-server" }}
-dot_config/wezterm
-dot_config/alacritty
-dot_config/zed
-dot_config/zellij
-dot_config/yazi
-private_Library
+.config/wezterm
+.config/alacritty
+.config/zed
+.config/zellij
+.config/yazi
+Library
 {{ end }}
