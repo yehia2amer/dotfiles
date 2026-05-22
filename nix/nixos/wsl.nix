@@ -42,6 +42,15 @@
   # Enable zsh system-wide (required for user shell)
   programs.zsh.enable = true;
   programs.zsh.interactiveShellInit = ''
+    # Override WSL-inherited proxy vars with correct local cntlm proxy
+    export HTTP_PROXY="http://127.0.0.1:3128"
+    export HTTPS_PROXY="http://127.0.0.1:3128"
+    export http_proxy="http://127.0.0.1:3128"
+    export https_proxy="http://127.0.0.1:3128"
+    export NO_PROXY="localhost,127.0.0.1,::1,.db.de,.rz.db.de"
+    export no_proxy="localhost,127.0.0.1,::1,.db.de,.rz.db.de"
+    export NODE_USE_ENV_PROXY=1
+
     # Auto-unlock gnome-keyring (WSL has no PAM login to do this)
     export XDG_RUNTIME_DIR="/run/user/$(id -u)"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
