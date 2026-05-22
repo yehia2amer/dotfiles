@@ -35,7 +35,11 @@ export PATH="/usr/local/share/dotnet:$PATH"
 {{- end }}
 
 {{- if .work }}
+{{- if eq .os "darwin" }}
 CA={{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-ca-cert-path" "-w" | trim }}
+{{- else }}
+CA={{ output "secret-tool" "lookup" "service" "work-ca-cert-path" "account" "yamer003" | trim }}
+{{- end }}
 if [ -f "$CA" ]; then
   export SSL_CERT_FILE="$CA"
   export REQUESTS_CA_BUNDLE="$CA"

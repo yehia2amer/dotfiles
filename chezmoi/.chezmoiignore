@@ -22,17 +22,6 @@ Library
 .codewiki
 {{ end }}
 
-{{ if eq .machine "nixos-wsl" }}
-# WSL has no gnome-keyring — skip secret-dependent templates until secrets are populated
-.bb9
-.codex
-.multica
-.claude/settings.json
-.config/gitconfigs/Work
-.config/glab-cli
-.config/nushell/env.nu
-{{ end }}
-
 {{ if eq .machine "nixos-server" }}
 .config/wezterm
 .config/alacritty

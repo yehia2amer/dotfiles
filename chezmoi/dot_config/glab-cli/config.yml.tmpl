@@ -63,6 +63,10 @@ hosts:
         #   valueFromEnv: MY_SECRET_VALUE
         custom_headers: []
     localhost:19443:
+{{- if eq .os "darwin" }}
         token: {{ output "security" "find-generic-password" "-a" "yamer003" "-s" "gitlab-pat-localhost" "-w" | trim }}
+{{- else }}
+        token: {{ output "secret-tool" "lookup" "service" "gitlab-pat-localhost" "account" "yamer003" | trim }}
+{{- end }}
 api_protocol: http
 api_host: localhost:19443
