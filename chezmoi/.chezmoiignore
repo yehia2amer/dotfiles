@@ -29,12 +29,8 @@ Library
 .multica
 .claude/settings.json
 .config/gitconfigs/Work
-.codewiki
 .config/glab-cli
-.agents/scripts
 .config/nushell/env.nu
-.config/zsh/local.zsh
-.zshenv
 {{ end }}
 
 {{ if eq .machine "nixos-server" }}
