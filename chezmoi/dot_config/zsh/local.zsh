@@ -114,11 +114,13 @@ alias pdfmd="olmocr"
 # OpenCode cleanup & restart
 alias oc-restart='~/.config/opencode/cleanup-and-restart.sh'
 
-# ── Corporate certificates ──
-export NODE_EXTRA_CA_CERTS="$HOME/.claude/certs/corporate-ca-bundle.pem"
-export SSL_CERT_FILE="$HOME/.claude/certs/merged-ca-bundle.pem"
-export REQUESTS_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
-export CURL_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
-export GIT_SSL_CAINFO="$HOME/.claude/certs/merged-ca-bundle.pem"
-export UV_NATIVE_TLS=1
+# ── Corporate certificates (only on machines with certs deployed) ──
+if [ -f "$HOME/.claude/certs/corporate-ca-bundle.pem" ]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.claude/certs/corporate-ca-bundle.pem"
+  export SSL_CERT_FILE="$HOME/.claude/certs/merged-ca-bundle.pem"
+  export REQUESTS_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
+  export CURL_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
+  export GIT_SSL_CAINFO="$HOME/.claude/certs/merged-ca-bundle.pem"
+  export UV_NATIVE_TLS=1
+fi
 export DISABLE_PROMPT_CACHING=1
