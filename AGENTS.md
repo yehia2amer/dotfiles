@@ -224,6 +224,7 @@ echo "FINGERPRINT" >> .gitleaksignore
 - **chezmoi `{{ keyring }}` requires `username` attribute on Linux** — `go-keyring` uses `{ service, username }` for Secret Service lookups. Storing with `account` instead of `username` will silently fail.
 - **gnome-keyring in WSL** needs `XDG_RUNTIME_DIR=/run/user/1000` and `DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus`. The NixOS config sets these as session variables.
 - **WSL distros share network namespace** — NixOS-WSL uses Ubuntu's cntlm proxy on `127.0.0.1:3128` and dnsmasq on `127.0.0.1:53` directly (no port forwarding needed).
+- **pi on NixOS-WSL must run via bun** — Node.js + undici's `EnvHttpProxyAgent` doesn't work behind corp proxy. The NixOS activation script patches pi's shebang from `node` to `bun`. Re-run `sudo nixos-rebuild switch` after `bun update -g @mariozechner/pi-coding-agent`.
 - **Corp network detection** in nushell caches DNS result for 5 min at `/tmp/.nu_corp_network_cache`.
 - **`allowUnfreePredicate`** is preferred over `allowUnfree = true` — be explicit about which unfree packages.
 - **Git identity**: default is personal (`yehamer@gmail.com`). Work identity via `includeIf` or manual gitconfig switch. Both configs in `chezmoi/dot_config/gitconfigs/`.
