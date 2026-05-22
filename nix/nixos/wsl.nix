@@ -51,6 +51,17 @@
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
+  # Auto-unlock gnome-keyring and set required env vars for secret-tool in WSL
+  environment.sessionVariables = {
+    XDG_RUNTIME_DIR = "/run/user/1000";
+    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
+  };
+
+  # Auto-unlock keyring with empty password on login
+  system.userActivationScripts.unlockKeyring = ''
+    echo "" | ${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
+  '';
+
   # ── DNS (uses Ubuntu WSL's dnsmasq via shared network namespace) ──
   networking.resolvconf.enable = false;
   environment.etc."resolv.conf".text = ''
