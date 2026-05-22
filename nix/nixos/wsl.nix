@@ -87,15 +87,13 @@
     echo "" | ${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
   '';
 
-  # Create pi wrapper that uses bun (Node.js fetch doesn't work with proxy behind corp firewall)
+  # Patch pi's shebang to use bun (Node.js fetch doesn't work with proxy behind corp firewall)
+  # bun's native fetch respects HTTP_PROXY. This gets re-applied after `bun update -g`.
   system.userActivationScripts.piWrapper = ''
-    mkdir -p /home/yamer003/.local/bin
-    cat > /home/yamer003/.local/bin/pi << 'WRAPPER'
-#!/bin/bash
-exec bun ~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/dist/cli.js "$@"
-WRAPPER
-    chmod +x /home/yamer003/.local/bin/pi
-    chown yamer003:users /home/yamer003/.local/bin/pi
+    PI_CLI="/home/yamer003/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/dist/cli.js"
+    if [ -f "$PI_CLI" ] && head -1 "$PI_CLI" | grep -q "node"; then
+      sed -i '1s|#!/usr/bin/env node|#!/usr/bin/env bun|' "$PI_CLI"
+    fi
   '';
 
   # ── DNS (uses Ubuntu WSL's dnsmasq via shared network namespace) ──
