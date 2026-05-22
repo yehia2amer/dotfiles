@@ -1,6 +1,6 @@
 {{- /* .zshenv — loaded by ALL zsh shells (login, interactive, scripts) */ -}}
 # ── Cargo/Rust ──
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 {{- if eq .os "darwin" }}
 
@@ -28,6 +28,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 {{- end }}
 export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$HOME/.rd/bin:$PATH"
 export PATH="$HOME/.atuin/bin:$PATH"
 {{- if eq .os "darwin" }}
