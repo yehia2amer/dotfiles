@@ -41,6 +41,7 @@
     curl
     wget
     cntlm
+    cloudflared  # for Cloudflare Tunnel (SSH access to this machine)
     libsecret
     gnome-keyring
     dbus
@@ -89,6 +90,34 @@
       # Performance
       cache = true;
       cache_size = 4096;
+    };
+  };
+
+  # cloudflared tunnel (SSH + services access to this machine)
+  # Credentials at ~/.cloudflared/ (NOT in git — contains TunnelSecret)
+  systemd.services.cloudflared-tunnel = {
+    description = "Cloudflare Tunnel";
+    after = [ "network.target" "cntlm.service" ];
+    wants = [ "cntlm.service" ];
+    wantedBy = [ "multi-user.target" ];
+    environment = {
+      HTTP_PROXY = "http://127.0.0.1:3128";
+      HTTPS_PROXY = "http://127.0.0.1:3128";
+    };
+    serviceConfig = {
+      User = "yamer003";
+      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --config /home/yamer003/.cloudflared/config.yml run";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+  };
+
+  # Enable SSH server (for cloudflared tunnel access)
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
     };
   };
 
