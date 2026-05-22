@@ -1,0 +1,3 @@
+font-family = CaskaydiaCove NF
+font-size = 17
+keybind = shift+enter=text:\x1b\r

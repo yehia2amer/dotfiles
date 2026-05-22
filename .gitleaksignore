@@ -1,0 +1,9 @@
+# .gitleaksignore — fingerprints of manually-reviewed false positives
+# Each line is a finding fingerprint (hash) from gitleaks JSON report.
+# Add ONLY after manual review confirms it's safe.
+#
+# To get fingerprints for review:
+#   gitleaks detect --source . --no-git --report-format json --report-path /tmp/report.json
+#   cat /tmp/report.json | jq '.[].Fingerprint'
+#
+# Format: one fingerprint per line

@@ -1,0 +1,124 @@
+# ~/.config/zsh/local.zsh — Managed by Chezmoi
+# Sourced by Home Manager's zsh framework via:
+#   [[ -f ~/.config/zsh/local.zsh ]] && source ~/.config/zsh/local.zsh
+
+# ── fnm (Fast Node Manager) ──
+eval "$(fnm env --use-on-cd)"
+alias nvm="echo 'nvm is gone. Use fnm instead: fnm list, fnm use, fnm install'"
+
+# ── Rust CLI drop-in replacements ──
+alias cat="bat"
+alias du="dua"
+alias top="btm"
+alias ps="procs"
+alias diff="delta"
+
+# ── Reminder aliases (incompatible syntax — use the modern tool) ──
+# Terminal-only: agents get real grep/find/sed.
+if [[ ("$TERM_PROGRAM" == "ghostty" || "$TERM_PROGRAM" == "WezTerm" || "$TERM_PROGRAM" == "Alacritty") && -t 0 ]]; then
+  alias grep="echo 'grep is gone. Use rg (ripgrep) instead: rg PATTERN'"
+  alias find="echo 'find is gone. Use fd instead: fd PATTERN'"
+  alias sed="echo 'sed is gone. Use sd instead: sd old new file'"
+fi
+
+# ── Block legacy Python tooling ──
+alias pipenv="echo 'pipenv is disabled. Use uv instead: uv run, uv sync, uv add, uv venv'"
+alias poetry="echo 'poetry is disabled. Use uv instead: uv init, uv add, uv run, uv build, uv publish'"
+alias pipx="echo 'pipx is disabled. Use uv instead: uv tool install, uv tool run, uv tool list'"
+alias python="echo 'Direct python is disabled. Use: uv run python, uv run script.py, or uv run pytest'"
+alias python3="echo 'Direct python3 is disabled. Use: uv run python, uv run script.py, or uv run pytest'"
+alias pnpm="echo 'pnpm is disabled. Use bun instead: bun install, bun add, bun remove, bun run'"
+alias yarn="echo 'yarn is disabled. Use bun instead: bun install, bun add, bun remove, bun run'"
+
+# ── Bun completions ──
+export BUN_INSTALL="$HOME/.bun"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# ── Google Cloud SDK completions ──
+if [ -f '/Applications/Utilities/google-cloud-sdk/completion.zsh.inc' ]; then
+  . '/Applications/Utilities/google-cloud-sdk/completion.zsh.inc'
+fi
+
+# ── Cloudflare Tunnel to Talos K8s ──
+k8s_up() {
+  echo "Starting cloudflared tunnel to k8s.amernas.work → localhost:16443..."
+  cloudflared access tcp --hostname k8s.amernas.work --url localhost:16443 &
+  CF_PID=$!
+  sleep 2
+  if kill -0 $CF_PID 2>/dev/null; then
+    echo "Tunnel running (PID $CF_PID). Use: kubectl --context talos-tunnel get nodes"
+    echo "Stop with: kill $CF_PID"
+  else
+    echo "Failed to start tunnel"
+  fi
+}
+
+# ── OpenCode server ──
+export OPENCODE_SERVER_PASSWORD="$(security find-generic-password -a yamer003 -s opencode-server-password -w 2>/dev/null)"
+_OC_REFCOUNT_FILE="/tmp/.oc_tunnel_refcount"
+
+oc() {
+  local count=0
+  [[ -f "$_OC_REFCOUNT_FILE" ]] && count=$(<"$_OC_REFCOUNT_FILE")
+  echo $((count + 1)) > "$_OC_REFCOUNT_FILE"
+
+  if ! pgrep -f "cloudflared tunnel run opencode" >/dev/null; then
+    echo "Starting cloudflared tunnel..."
+    cloudflared tunnel run opencode &>/dev/null &
+  fi
+
+  if ! nc -z localhost 4096 2>/dev/null; then
+    echo "opencode serve not responding — restarting service..."
+    launchctl kickstart -k "gui/$(id -u)/com.opencode.serve" 2>/dev/null
+  fi
+
+  local retries=0 max_retries=10
+  while ! nc -z localhost 4096 2>/dev/null; do
+    retries=$((retries + 1))
+    if (( retries >= max_retries )); then
+      echo "⚠️  opencode serve not ready after ${max_retries}s — launching opencode locally."
+      opencode --dir "$(pwd)" "$@"
+      count=$(<"$_OC_REFCOUNT_FILE")
+      if (( count <= 1 )); then
+        rm -f "$_OC_REFCOUNT_FILE"
+        pkill -f "cloudflared tunnel run opencode" 2>/dev/null && echo "Tunnel stopped."
+      else
+        echo $((count - 1)) > "$_OC_REFCOUNT_FILE"
+      fi
+      return
+    fi
+    sleep 1
+  done
+
+  opencode attach http://localhost:4096 --dir "$(pwd)" --log-level ERROR "$@"
+
+  count=$(<"$_OC_REFCOUNT_FILE")
+  if (( count <= 1 )); then
+    rm -f "$_OC_REFCOUNT_FILE"
+    pkill -f "cloudflared tunnel run opencode" 2>/dev/null && echo "Tunnel stopped."
+  else
+    echo $((count - 1)) > "$_OC_REFCOUNT_FILE"
+  fi
+}
+
+# ── AI tool env vars (keys from Keychain) ──
+export OPENAI_API_KEY="$(security find-generic-password -a yamer003 -s litellm-api-key -w 2>/dev/null)"
+export OPENAI_BASE_URL="$(security find-generic-password -a yamer003 -s work-genai-base-url -w 2>/dev/null)/v1"
+export OPENAI_MODEL="bedrock.anthropic.claude-sonnet-4-6"
+export OPENAI_MODEL_ID="openai.gpt-5.4"
+
+# olmocr shortcut
+alias ocr="olmocr"
+alias pdfmd="olmocr"
+
+# OpenCode cleanup & restart
+alias oc-restart='~/.config/opencode/cleanup-and-restart.sh'
+
+# ── Corporate certificates ──
+export NODE_EXTRA_CA_CERTS="$HOME/.claude/certs/corporate-ca-bundle.pem"
+export SSL_CERT_FILE="$HOME/.claude/certs/merged-ca-bundle.pem"
+export REQUESTS_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
+export CURL_CA_BUNDLE="$HOME/.claude/certs/merged-ca-bundle.pem"
+export GIT_SSL_CAINFO="$HOME/.claude/certs/merged-ca-bundle.pem"
+export UV_NATIVE_TLS=1
+export DISABLE_PROMPT_CACHING=1

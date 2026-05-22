@@ -1,0 +1,115 @@
+# User configuration for BuildBloatBuster
+
+# A list of paths to scan. By default, it's just the current directory.
+scanPaths:
+  - .
+
+# A list of directory names to identify for cleaning.
+includeNames:
+  # Web Development
+  - "node_modules"
+  - ".parcel-cache"
+  - ".next"
+  - ".nuxt"
+  - ".svelte-kit"
+  - ".turbo"
+  - "dist"
+  - "build"
+  - "out"
+  # Python
+  - ".venv"
+  - "venv"
+  - ".tox"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".mypy_cache"
+  - ".ruff_cache"
+  - ".eggs"
+  # Java / Maven / Gradle / Rust (target is shared)
+  - "target"
+  - ".gradle"
+  # Go / PHP / Ruby (vendor is shared)
+  - "vendor"
+  - "vendor/bundle"
+  # Swift
+  - ".build"
+  # macOS / Xcode
+  - "Pods"
+  - "DerivedData"
+  # IDE/Editor caches
+  - ".idea"
+  - ".angular"
+  - ".expo"
+  - ".webpack"
+  # Test/Coverage
+  - "coverage"
+  - ".nyc_output"
+  - ".jest-cache"
+  # Frontend build caches
+  - ".sass-cache"
+  - "storybook-static"
+  # JS package managers
+  - ".pnpm-store"
+  # Other
+  - ".cache"
+  - ".terraform"
+  - ".serverless"
+
+# A list of directory names to explicitly exclude from scanning.
+# WARNING: Directories listed here will be completely skipped - the scanner won't look inside them!
+# Only add directories here that you NEVER want to scan (not directories you just don't want to delete).
+excludeNames:
+  - ".npm"
+  - ".bun"
+  - ".local"
+  - ".vscode"
+  - ".nvm"
+  - "Application Support"
+
+# A list of absolute paths to exclude from the scan.
+# This is a critical safety feature to prevent scanning system directories.
+excludePaths:
+  - "/Applications"
+  - "/Library"
+  - "/System"
+  - "/usr"
+  - "/bin"
+  - "/sbin"
+  - "/opt"
+  - "/dev"
+  - "/Volumes"
+  - "/private"
+  - "/etc"
+  - "/var"
+  - "/tmp"
+  - "/cores"
+  - "~/.cache"
+  - "~/Library"
+  - "~/.Trash"
+  - "~/Applications"
+  - "~/.vscode"
+
+# The minimum size (in MB) for a directory to be considered a candidate.
+minSizeMB: 10
+
+# The maximum depth the scanner will go into subdirectories.
+maxDepth: 20
+
+# Whether to follow symbolic links. It's safer to keep this false.
+followSymlinks: false
+
+# Deletion settings
+delete:
+  # The deletion mode. Can be "quarantine" (default) or "rm" (permanent).
+  mode: "quarantine"
+  # The directory where items are moved when quarantined.
+  quarantineDir: "~/.cache/BuildBloatBuster/trash"
+  # The number of days to keep items in quarantine before they can be purged.
+  retentionDays: 14
+
+# Output settings
+output:
+  # The output format. Can be "table" (default) or "json".
+  format: "table"
+  # The criteria for sorting the results. Can be "size", "path", or "age".
+  sortBy: "size"

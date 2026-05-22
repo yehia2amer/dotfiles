@@ -1,0 +1,31 @@
+{{- if eq .os "darwin" -}}
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+
+Host github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+{{- end }}
+
+Host personal-github-projects
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_github_private
+  IdentitiesOnly yes
+
+{{- if .work }}
+
+Host msc-ado-projects
+  HostName ssh.dev.azure.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_msc
+  IdentitiesOnly yes
+
+Host 192.168.0.5
+  User root
+  HostKeyAlgorithms +ssh-rsa
+  PubkeyAcceptedKeyTypes +ssh-rsa
+  IdentityFile ~/.ssh/id_rsa
+{{- end }}

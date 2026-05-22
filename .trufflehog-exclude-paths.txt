@@ -1,0 +1,3 @@
+# TruffleHog exclude paths — files known to never contain real secrets
+# One regex per line
+\.git/

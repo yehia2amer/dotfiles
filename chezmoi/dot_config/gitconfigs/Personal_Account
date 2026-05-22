@@ -1,0 +1,38 @@
+[user]
+	name = Yehia Amer
+	email = yehamer@gmail.com
+	signingkey = 86466899421655571C9BA432AC7B8409045AD229
+[core]
+	sshCommand = "ssh -i ~/.ssh/id_ed25519_github_private -o IdentitiesOnly=yes"
+	pager = delta
+	excludesfile = /Users/yamer003/.gitignore_global
+	editor = code --wait
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+
+[commit]
+	gpgsign = true
+[url "http://localhost:19443/"]
+	insteadOf = https://git.tech.rz.db.de/
+[http "http://localhost:19443/"]
+	proxy = 
+[credential]
+	helper = store
+[http]
+	sslCAInfo = /Users/yamer003/.claude/certs/merged-ca-bundle.pem
+[init]
+	defaultBranch = main
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[coderabbit]
+	machineId = cli/a0a178b28fd046dda674fe6011511363

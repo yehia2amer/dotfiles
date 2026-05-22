@@ -1,0 +1,8 @@
+// Dev layout: yazi file browser sidebar + main shell
+// Launch: zellij --layout dev
+layout {
+    pane size="25%" {
+        command "yazi"
+    }
+    pane size="75%" focus=true
+}

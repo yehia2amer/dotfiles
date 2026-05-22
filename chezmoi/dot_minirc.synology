@@ -1,0 +1,9 @@
+pu port             /dev/cu.usbserial-202310
+pu baudrate         115200
+pu bits             8
+pu parity           N
+pu stopbits         1
+pu rtscts           No
+pu xonxoff          No
+pu linewrap         Yes
+pu addcarreturn     Yes

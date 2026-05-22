@@ -1,0 +1,7 @@
+tunnel: 4b28f6af-3a46-409b-ad79-d091b3421304
+credentials-file: /Users/yamer003/.cloudflared/4b28f6af-3a46-409b-ad79-d091b3421304.json
+
+ingress:
+  - hostname: opencode.amernas.work
+    service: http://localhost:4096
+  - service: http_status:404

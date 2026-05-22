@@ -1,0 +1,8 @@
+title = "dotfiles gitleaks config"
+
+[allowlist]
+  description = "Known safe patterns"
+  paths = [
+    '''chezmoi/dot_config/nvim/lazy-lock\.json''',
+    '''\.pre-commit-config\.yaml''',
+  ]

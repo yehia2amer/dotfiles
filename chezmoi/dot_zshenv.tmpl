@@ -1,0 +1,47 @@
+{{- /* .zshenv — loaded by ALL zsh shells (login, interactive, scripts) */ -}}
+# ── Cargo/Rust ──
+. "$HOME/.cargo/env"
+
+{{- if eq .os "darwin" }}
+
+# ── Homebrew ──
+if [ -d /opt/homebrew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{- end }}
+
+# ── Google Cloud SDK ──
+export GOOGLE_CLOUD_PROJECT='pg-ae-n-app-237049'
+export VERTEX_LOCATION='global'
+export GOOGLE_CLOUD_LOCATION='global'
+export GOOGLE_GENAI_USE_VERTEXAI='true'
+{{- if eq .os "darwin" }}
+if [ -f '/Applications/Utilities/google-cloud-sdk/path.zsh.inc' ]; then
+  . '/Applications/Utilities/google-cloud-sdk/path.zsh.inc'
+fi
+{{- end }}
+
+# ── Essential PATHs ──
+export PATH="$HOME/.nix-profile/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+{{- if eq .os "darwin" }}
+export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+{{- end }}
+export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.rd/bin:$PATH"
+export PATH="$HOME/.atuin/bin:$PATH"
+{{- if eq .os "darwin" }}
+export PATH="/usr/local/share/dotnet:$PATH"
+{{- end }}
+
+{{- if .work }}
+CA={{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-ca-cert-path" "-w" | trim }}
+if [ -f "$CA" ]; then
+  export SSL_CERT_FILE="$CA"
+  export REQUESTS_CA_BUNDLE="$CA"
+  export CURL_CA_BUNDLE="$CA"
+  export NODE_EXTRA_CA_CERTS="$CA"
+  export GIT_SSL_CAINFO="$CA"
+  export PIP_CERT="$CA"
+fi
+{{- end }}

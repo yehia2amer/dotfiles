@@ -1,0 +1,11 @@
+[sso-session mdp-sso]
+sso_start_url = https://d-99671a01cd.awsapps.com/start
+sso_region = eu-central-1
+sso_registration_scopes = sso:account:access
+
+[profile MDP-021891570549]
+sso_session = mdp-sso
+sso_account_id = 021891570549
+sso_role_name = MDPKunde
+region = eu-central-1
+output = json

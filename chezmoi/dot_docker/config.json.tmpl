@@ -1,0 +1,30 @@
+{{- if eq .os "darwin" -}}
+{
+  "auths": {},
+  "credHelpers": {
+    "us-central1-docker.pkg.dev": "gcloud"
+  },
+  "credsStore": "osxkeychain",
+  "features": {
+    "hooks": "true"
+  },
+  "plugins": {
+    "-x-cli-hints": {
+      "enabled": "true"
+    }
+  }
+}
+{{- else -}}
+{
+  "auths": {},
+  "credsStore": "secretservice",
+  "features": {
+    "hooks": "true"
+  },
+  "plugins": {
+    "-x-cli-hints": {
+      "enabled": "true"
+    }
+  }
+}
+{{- end }}

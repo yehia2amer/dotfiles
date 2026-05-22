@@ -1,0 +1,32 @@
+README.md
+LICENSE
+*.DS_Store
+.git
+
+{{ if ne .machine "MacBookProM3" }}
+dot_advLdap
+dot_cloudflared
+dot_cursor
+private_Library
+dot_minirc.synology
+dot_codewiki
+{{ end }}
+
+{{ if ne .os "darwin" }}
+private_Library
+dot_config/alacritty
+{{ end }}
+
+{{ if ne .work true }}
+dot_advLdap
+dot_codewiki
+{{ end }}
+
+{{ if eq .machine "nixos-server" }}
+dot_config/wezterm
+dot_config/alacritty
+dot_config/zed
+dot_config/zellij
+dot_config/yazi
+private_Library
+{{ end }}

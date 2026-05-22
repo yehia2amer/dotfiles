@@ -1,0 +1,1 @@
+{"telemetryEnabled":true,"namespace":"testkube","initialized":true,"apiURI":"http://localhost:8088","apiServerName":"testkube-api-server","apiServerPort":8088,"dashboardName":"testkube-dashboard","dashboardPort":8080,"cloudContext":{},"master":{"features":{"LogsV2":false},"uris":{}}}

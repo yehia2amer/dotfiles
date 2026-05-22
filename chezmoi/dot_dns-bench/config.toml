@@ -1,0 +1,11 @@
+domain = "google.com"
+threads = 256
+requests = 100
+timeout = 3
+protocol = "Udp"
+name_servers_ip = "V4"
+lookup_ip = "V4"
+style = "Rounded"
+format = "HumanReadable"
+skip_system_servers = false
+custom-servers-file = "/Users/yamer003/.dns-bench/ipv4-custom-servers-example.txt"

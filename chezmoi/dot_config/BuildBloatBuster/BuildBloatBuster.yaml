@@ -1,0 +1,115 @@
+# Default configuration for BuildBloatBuster
+# This file provides a good starting point and can be customized as needed.
+
+# A list of paths to scan. By default, it's just the current directory.
+scanPaths:
+  - .
+
+# A list of directory names to identify for cleaning.
+includeNames:
+  # Web Development
+  - "node_modules"
+  - ".parcel-cache"
+  - ".next"
+  - ".nuxt"
+  - ".svelte-kit"
+  - ".turbo"
+  - "dist"
+  - "build"
+  - "out"
+  # Python
+  - ".venv"
+  - "venv"
+  - ".tox"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".mypy_cache"
+  - ".ruff_cache"
+  # Java / Maven / Gradle
+  - "target"
+  - ".gradle"
+  # Go
+  - "vendor"
+  # Rust
+  - "target"
+  # Swift
+  - ".build"
+  # Ruby
+  - "vendor/bundle"
+  # PHP
+  - "vendor"
+  # macOS / Xcode
+  - "Pods"
+  - "DerivedData"
+  # Other
+  - ".cache"
+  - ".terraform"
+  - ".serverless"
+
+# A list of directory names to explicitly exclude from cleaning.
+excludeNames:
+  - "src"
+  - "lib"
+  - "source"
+  - "Sources"
+  - "include"
+  - ".npm"
+  - ".bun"
+  - ".cache"
+  - ".local"
+  - ".vscode"
+  - ".nvm"
+  - "Application Support"
+  - "Caches" # From Library/Caches
+
+# A list of absolute paths to exclude from the scan.
+# This is a critical safety feature to prevent scanning system directories.
+excludePaths:
+  - "/Applications"
+  - "/Library"
+  - "/System"
+  - "/usr"
+  - "/bin"
+  - "/sbin"
+  - "/opt"
+  - "/dev"
+  - "/Volumes"
+  - "/private"
+  - "/etc"
+  - "/var"
+  - "/tmp"
+  - "/cores"
+  - "~/.cache"
+  - "~/Library"
+  - "~/.Trash"
+  - "~/Applications"
+  - "~/.vscode"
+
+# The minimum size (in MB) for a directory to be considered a candidate.
+minSizeMB: 10
+
+# The maximum depth the scanner will go into subdirectories.
+maxDepth: 8
+
+# Whether to follow symbolic links. It's safer to keep this false.
+followSymlinks: false
+
+# The number of concurrent workers to use for calculating directory sizes.
+# Defaults to the number of CPU cores * 2.
+# concurrency: 16
+
+# Deletion settings
+delete:
+  # The deletion mode. Can be "quarantine" (default) or "rm" (permanent).
+  mode: "rm"
+  # The directory where items are moved when quarantined.
+  quarantineDir: "~/.cache/BuildBloatBuster/trash"
+  # The number of days to keep items in quarantine before they can be purged.
+  retentionDays: 14
+
+# Output settings
+output:
+  # The output format. Can be "table" (default) or "json".
+  format: "table"
+  # The criteria for sorting the results. Can be "size", "path", or "age".
+  sortBy: "size"

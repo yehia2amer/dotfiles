@@ -1,0 +1,68 @@
+# awake.toml (example)
+db_path = "~/.awake/awake.db"
+
+[database]
+# Robustness configuration
+max_retries = 3
+retry_delay_ms = 100
+health_check_timeout_ms = 5000
+boot_assertions = true
+version_check = true
+# Required SurrealDB version range (2.x series)
+min_version = "2.0.0"
+max_version = "2.99.99"
+
+[http] # optional
+host = "127.0.0.1"
+port = 8080
+
+[graphql]
+mode = "advanced"
+surreal_http = "http://127.0.0.1:8000"
+namespace = "awake"
+database = "awake"
+user = "root"
+pass = "root"
+timeout_ms = 30000
+
+[ingest]
+batch = 128
+workers = 32
+overlap = 20
+max_tokens = 200
+
+[retrieval]
+radius = 2
+k = 6
+size_cap = 6000
+
+[embeddings]
+backend = "fastembed" # or "llamacpp"
+model = "BGESmallENV15" # or path to .gguf for llama.cpp
+dim = 384 # assert vs index dimension
+normalized = true
+
+[vector_store]
+# Resource limits for robustness
+max_batch_size = 1000
+max_topk_results = 10000
+max_embedding_dimension = 1024
+retry_attempts = 3
+
+[disk_guard]
+min_free_bytes = 1000000000
+
+[observability]
+# Observability and monitoring configuration
+enabled = true
+service_name = "awake"  # OpenTelemetry service name
+service_version = "1.0.0"  # Service version for telemetry
+
+[observability.logging]
+enabled = true
+level = "trace"  # error, warn, info, debug, trace
+format = "json"  # json, pretty, compact
+# Log file configuration
+file_path = "~/.awake/logs/awake.log"
+# OpenTelemetry logs endpoint (if using OTEL logging)
+otel_endpoint = "http://localhost:4317"  # OTLP gRPC endpoint

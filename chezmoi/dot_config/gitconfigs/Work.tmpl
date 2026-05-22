@@ -1,0 +1,26 @@
+{{- /* Work git identity — email from Keychain */ -}}
+[user]
+	name = Yehia Amer (MiddleEast)
+{{- if eq .os "darwin" }}
+	email = {{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-email" "-w" | trim }}
+{{- else }}
+	email = {{ output "secret-tool" "lookup" "service" "work-email" "account" "yamer003" | trim }}
+{{- end }}
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[pull]
+	rebase = false
+[merge]
+	ff = true
+[core]
+	autocrlf = input
+	sshCommand = "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+[credential]
+	helper = osxkeychain
+[http "http://localhost:19443/"]
+	proxy = 
+[url "http://localhost:19443/"]
+	insteadOf = https://git.tech.rz.db.de/

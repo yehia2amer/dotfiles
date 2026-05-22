@@ -1,0 +1,24 @@
+{{- /* chezmoi config template — detects machine */ -}}
+{{- /* Hostname on this Mac is unreliable (changes with VPN/kubectl). Use os+arch+username instead */ -}}
+[data]
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
+    machine = "MacBookProM3"
+    work = true
+    os = "darwin"
+{{- else if eq .chezmoi.hostname "nixos-laptop" }}
+    machine = "nixos-laptop"
+    work = false
+    os = "linux"
+{{- else if eq .chezmoi.hostname "nixos-server" }}
+    machine = "nixos-server"
+    work = false
+    os = "linux"
+{{- else if eq .chezmoi.hostname "nixos-wsl" }}
+    machine = "nixos-wsl"
+    work = false
+    os = "linux"
+{{- else }}
+    machine = "unknown"
+    work = false
+    os = "{{ .chezmoi.os }}"
+{{- end }}

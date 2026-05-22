@@ -1,0 +1,25 @@
+{{- /* Per-machine git overrides — included by Home Manager's programs.git */ -}}
+{{- if eq .machine "MacBookProM3" }}
+[user]
+    signingkey = 86466899421655571C9BA432AC7B8409045AD229
+
+[commit]
+    gpgsign = true
+
+[core]
+    pager = delta
+    excludesfile = {{ .chezmoi.homeDir }}/.gitignore
+    editor = code --wait
+
+[interactive]
+    diffFilter = delta --color-only
+
+[http "http://localhost:19443/"]
+    proxy =
+
+[url "http://localhost:19443/"]
+    insteadOf = https://git.tech.rz.db.de/
+
+[http]
+    sslCAInfo = {{ .chezmoi.homeDir }}/.claude/certs/merged-ca-bundle.pem
+{{- end }}

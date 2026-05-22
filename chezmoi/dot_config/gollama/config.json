@@ -1,0 +1,21 @@
+{
+  "columns": [
+    "Name",
+    "Size",
+    "Quant",
+    "Family",
+    "Modified",
+    "ID"
+  ],
+  "docker_container": "",
+  "editor": "/usr/bin/vim",
+  "lm_studio_file_paths": "/Users/yamer003/.lmstudio/models",
+  "log_file_path": "",
+  "log_level": "info",
+  "ollama_api_key": "",
+  "ollama_api_url": "http://127.0.0.1:11434",
+  "ollama_models_dir": "/Users/yamer003/.ollama/models",
+  "sort_order": "modified",
+  "strip_string": "",
+  "theme": "dark-neon"
+}

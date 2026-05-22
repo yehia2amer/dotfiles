@@ -1,0 +1,33 @@
+# .pre-commit-config.yaml
+# RULE: Fail on ALL findings (verified AND unverified).
+# False positives are handled via allowlist files, NOT by loosening detection.
+#
+# Allowlist mechanisms:
+#   TruffleHog: .trufflehog-exclude-paths.txt (path exclusions)
+#               --exclude-detectors (disable specific detector types)
+#   Gitleaks:   .gitleaksignore (fingerprint-based — reviewed false positives)
+#               .gitleaks.toml [allowlist] section (path/regex patterns)
+#               Inline: # gitleaks:allow (in source files)
+
+repos:
+  # TruffleHog — fail on ANY finding (verified or unverified)
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog Secret Scanner
+        entry: bash -c 'trufflehog filesystem --fail --exclude-paths=.trufflehog-exclude-paths.txt .'
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # Gitleaks — fail on ANY finding (uses .gitleaksignore for reviewed exceptions)
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: Gitleaks Secret Scanner
+        entry: gitleaks detect --source . --no-git --verbose --redact
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]

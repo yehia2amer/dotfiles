@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "26687afd-a940-4879-9875-dd26fb91ddbd",
+      "name": "prod",
+      "openfgaApiUrl": "http://localhost:8080",
+      "storeId": "01KFTKS33FAY07YEMDGCP8ZX4D",
+      "authorizationModelId": "01KFXDK6TB0CSRGBS3V21JX2HD",
+      "modelSelectionMode": "pinned",
+      "authMethod": "none",
+      "createdAt": "2026-01-26T11:21:52.460Z",
+      "updatedAt": "2026-01-26T15:08:44.964Z"
+    }
+  ],
+  "recentItems": [],
+  "activeProfileId": "26687afd-a940-4879-9875-dd26fb91ddbd",
+  "isConnected": true,
+  "lastUpdated": "2026-01-26T15:08:44.964Z"
+}

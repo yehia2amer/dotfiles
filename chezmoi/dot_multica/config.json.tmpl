@@ -1,0 +1,11 @@
+{{- /* Multica config — token from native OS keychain */ -}}
+{
+  "server_url": "https://api.multica.ai",
+  "app_url": "https://multica.ai",
+  "workspace_id": "c3a40d4c-d0e0-41db-8907-7c0f6171cc41",
+{{- if eq .os "darwin" }}
+  "token": "{{ output "security" "find-generic-password" "-a" "yamer003" "-s" "multica-token" "-w" | trim }}"
+{{- else }}
+  "token": "{{ output "secret-tool" "lookup" "service" "multica-token" "account" "yamer003" | trim }}"
+{{- end }}
+}

@@ -1,0 +1,2 @@
+prefix_rule(pattern=["printf", "\\n===== SPLIT =====\\n"], decision="allow")
+prefix_rule(pattern=["uv", "run"], decision="allow")

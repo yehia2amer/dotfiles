@@ -1,0 +1,7 @@
+{{- /* .zprofile — login shell only (macOS: opened by Terminal.app on new window) */ -}}
+{{- if eq .os "darwin" }}
+# MacPorts (if present)
+if [ -d /opt/local ]; then
+  export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+fi
+{{- end }}
