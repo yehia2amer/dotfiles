@@ -61,7 +61,7 @@
   # ── DNS (fully independent — own dnsmasq + cloudflared) ──
   networking.resolvconf.enable = false;
   environment.etc."resolv.conf".text = ''
-    nameserver 127.0.0.1
+    nameserver 127.0.0.53
   '';
 
   # dnsmasq: split DNS (corp → corp DNS, external → cloudflared DoH)
@@ -74,7 +74,7 @@
         "127.0.0.1#5053"
       ];
       no-resolv = true;
-      listen-address = "127.0.0.1";
+      listen-address = "127.0.0.53";
       bind-interfaces = true;
     };
   };
