@@ -87,15 +87,14 @@
     echo "" | ${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
   '';
 
-  # Wrapper script: run pi via bun (Node.js fetch doesn't work with proxy behind corp firewall)
-  # ~/.local/bin/pi takes PATH priority over ~/.bun/bin/pi
-  # Survives `bun update -g` since it's a separate file
+  # Patch pi shebang to use bun (bun's fetch respects HTTP_PROXY natively,
+  # Node.js + undici's EnvHttpProxyAgent doesn't work reliably behind corp proxy)
+  # Re-run `sudo nixos-rebuild switch` after `bun update -g @mariozechner/pi-coding-agent`
   system.userActivationScripts.piWrapper = ''
-    mkdir -p /home/yamer003/.local/bin
-    echo '#!/bin/bash' > /home/yamer003/.local/bin/pi
-    echo 'exec bun ~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/dist/cli.js "$@"' >> /home/yamer003/.local/bin/pi
-    chmod +x /home/yamer003/.local/bin/pi
-    chown yamer003:users /home/yamer003/.local/bin/pi
+    PI_CLI="/home/yamer003/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/dist/cli.js"
+    if [ -f "$PI_CLI" ] && head -1 "$PI_CLI" | grep -q "node"; then
+      sed -i '1s|#!/usr/bin/env node|#!/usr/bin/env bun|' "$PI_CLI"
+    fi
   '';
 
   # ── DNS (uses Ubuntu WSL's dnsmasq via shared network namespace) ──
