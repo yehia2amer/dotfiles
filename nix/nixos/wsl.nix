@@ -41,6 +41,14 @@
 
   # Enable zsh system-wide (required for user shell)
   programs.zsh.enable = true;
+  programs.zsh.interactiveShellInit = ''
+    # Auto-unlock gnome-keyring (WSL has no PAM login to do this)
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+    if [[ ! -S "$XDG_RUNTIME_DIR/keyring/control" ]]; then
+      echo "a" | gnome-keyring-daemon --unlock --components=secrets &>/dev/null
+    fi
+  '';
 
   # Allow wheel group passwordless sudo (convenient for WSL)
   security.sudo.wheelNeedsPassword = false;
