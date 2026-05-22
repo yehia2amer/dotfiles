@@ -46,7 +46,7 @@
     export XDG_RUNTIME_DIR="/run/user/$(id -u)"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
     if [[ ! -S "$XDG_RUNTIME_DIR/keyring/control" ]]; then
-      echo "a" | gnome-keyring-daemon --unlock --components=secrets &>/dev/null
+      echo "" | gnome-keyring-daemon --unlock --components=secrets &>/dev/null
     fi
   '';
 
