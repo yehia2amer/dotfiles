@@ -78,6 +78,17 @@
     echo "" | ${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
   '';
 
+  # Create pi wrapper that uses bun (Node.js fetch doesn't work with proxy behind corp firewall)
+  system.userActivationScripts.piWrapper = ''
+    mkdir -p /home/yamer003/.local/bin
+    cat > /home/yamer003/.local/bin/pi << 'WRAPPER'
+#!/bin/bash
+exec bun ~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/dist/cli.js "$@"
+WRAPPER
+    chmod +x /home/yamer003/.local/bin/pi
+    chown yamer003:users /home/yamer003/.local/bin/pi
+  '';
+
   # ── DNS (uses Ubuntu WSL's dnsmasq via shared network namespace) ──
   networking.resolvconf.enable = false;
   environment.etc."resolv.conf".text = ''
