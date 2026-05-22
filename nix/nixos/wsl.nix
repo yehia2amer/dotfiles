@@ -44,7 +44,6 @@
     libsecret
     gnome-keyring
     dbus
-    cloudflared
   ];
 
   systemd.services.cntlm = {
@@ -79,21 +78,17 @@
     };
   };
 
-  # cloudflared: DNS-over-HTTPS (reaches Cloudflare via cntlm proxy)
-  systemd.services.cloudflared-dns = {
-    description = "Cloudflared DNS-over-HTTPS proxy";
-    after = [ "network.target" "cntlm.service" ];
-    wants = [ "cntlm.service" ];
-    wantedBy = [ "multi-user.target" ];
-    environment = {
-      HTTP_PROXY = "http://127.0.0.1:3128";
-      HTTPS_PROXY = "http://127.0.0.1:3128";
-    };
-    serviceConfig = {
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query --upstream https://1.0.0.1/dns-query";
-      Restart = "on-failure";
-      RestartSec = 5;
-      DynamicUser = true;
+  # dnscrypt-proxy: DNS-over-HTTPS (replaces deprecated cloudflared proxy-dns)
+  services.dnscrypt-proxy2 = {
+    enable = true;
+    settings = {
+      listen_addresses = [ "127.0.0.1:5053" ];
+      server_names = [ "cloudflare" "cloudflare-ipv6" "google" ];
+      # Use cntlm proxy to reach DoH servers
+      http_proxy = "http://127.0.0.1:3128";
+      # Performance
+      cache = true;
+      cache_size = 4096;
     };
   };
 
