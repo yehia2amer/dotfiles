@@ -1,11 +1,7 @@
 {{- /* codewiki config — base_url from Keychain */ -}}
 {
   "version": "1.0",
-{{- if eq .os "darwin" }}
-  "base_url": "{{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-genai-base-url" "-w" | trim }}",
-{{- else }}
-  "base_url": "{{ output "secret-tool" "lookup" "service" "work-genai-base-url" "account" "yamer003" | trim }}",
-{{- end }}
+  "base_url": "{{ keyring "work-genai-base-url" "yamer003" }}",
   "main_model": "bedrock.anthropic.claude-opus-4-7",
   "cluster_model": "bedrock.anthropic.claude-opus-4-7",
   "default_output": "docs",

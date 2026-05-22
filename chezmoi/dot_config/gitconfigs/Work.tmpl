@@ -1,11 +1,7 @@
 {{- /* Work git identity — email from Keychain */ -}}
 [user]
 	name = Yehia Amer (MiddleEast)
-{{- if eq .os "darwin" }}
-	email = {{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-email" "-w" | trim }}
-{{- else }}
-	email = {{ output "secret-tool" "lookup" "service" "work-email" "account" "yamer003" | trim }}
-{{- end }}
+	email = {{ keyring "work-email" "yamer003" }}
 [filter "lfs"]
 	process = git-lfs filter-process
 	required = true
@@ -18,8 +14,13 @@
 [core]
 	autocrlf = input
 	sshCommand = "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+{{- if eq .os "darwin" }}
 [credential]
 	helper = osxkeychain
+{{- else }}
+[credential]
+	helper = libsecret
+{{- end }}
 [http "http://localhost:19443/"]
 	proxy = 
 [url "http://localhost:19443/"]
