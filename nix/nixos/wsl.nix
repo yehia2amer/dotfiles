@@ -14,11 +14,12 @@
     noProxy = "localhost,127.0.0.1,::1,.db.de,.rz.db.de";
   };
 
-  # Node.js/undici needs uppercase proxy vars
+  # Node.js/undici needs uppercase proxy vars + native proxy support
   environment.variables = {
     HTTP_PROXY = "http://127.0.0.1:3128";
     HTTPS_PROXY = "http://127.0.0.1:3128";
     NO_PROXY = "localhost,127.0.0.1,::1,.db.de,.rz.db.de";
+    NODE_USE_ENV_PROXY = "1";
   };
 
   # ── Nix settings ──
