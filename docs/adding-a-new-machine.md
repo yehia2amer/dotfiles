@@ -150,6 +150,9 @@ Any `.tmpl` file can use:
 
 ## Step 6: Secrets (Native Credential Store)
 
+Chezmoi templates use `{{ keyring "service-name" "yamer003" }}` which is cross-platform.
+The `keyring` function auto-detects the OS and calls the native credential API.
+
 ### macOS (new Mac):
 ```bash
 # Store all required secrets in Keychain
@@ -161,15 +164,28 @@ security add-generic-password -a "yamer003" -s "github-token-nushell" -w "VALUE"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ```
 
-### Linux (NixOS):
+### Linux (NixOS / NixOS-WSL):
 ```bash
-# Store secrets in GNOME Keyring / KDE Wallet
-secret-tool store --label="litellm-api-key" service "litellm-api-key" account "yamer003"
-secret-tool store --label="github-token-nushell" service "github-token-nushell" account "yamer003"
+# ⚠️  IMPORTANT: use 'username' attribute (NOT 'account')
+# go-keyring (used by chezmoi's {{ keyring }}) looks up by { service, username }
+echo -n "VALUE" | secret-tool store --label="litellm-api-key" service "litellm-api-key" username "yamer003"
+echo -n "VALUE" | secret-tool store --label="github-token-nushell" service "github-token-nushell" username "yamer003"
+
+# Verify
+secret-tool lookup service "litellm-api-key" username "yamer003"
 
 # SSH keys
 ssh-add ~/.ssh/id_ed25519
 ```
+
+### WSL-specific: gnome-keyring must be unlocked first
+```bash
+export XDG_RUNTIME_DIR=/run/user/1000
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+echo "" | gnome-keyring-daemon --unlock --components=secrets
+# Then store secrets as above
+```
+The NixOS-WSL config auto-sets these env vars and unlocks on boot.
 
 **Required secrets** (minimum to function — see AGENTS.md for full list):
 | Service Name | Needed for |

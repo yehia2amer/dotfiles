@@ -5,7 +5,7 @@
 1. **NO SECRETS IN GIT — EVER.** No encrypted files, no age-wrapped secrets, no "just this once." Secrets live ONLY in native OS credential stores.
    - macOS: `security add-generic-password` / `security find-generic-password -w`
    - Linux: `secret-tool store` / `secret-tool lookup`
-   - Chezmoi templates use `{{ output "security" ... }}` to reference at apply-time
+   - Chezmoi templates use **`{{ keyring "service-name" "yamer003" }}`** — cross-platform, no OS branching (see Secrets section)
    - If a secret cannot be extracted → that file is NOT TRACKED
 
 2. **NO EMPLOYER NAME IN REPO.** Zero trace of any employer. Work URLs, emails, domains all live in macOS Keychain. Use generic labels like "work-genai-base-url", "work-email".
@@ -69,12 +69,65 @@
 
 ---
 
-## Secrets in Keychain
+## Secrets — Cross-Platform Keyring
 
-All stored under account `yamer003`. Retrieve with:
+Templates use chezmoi's built-in **`{{ keyring "service-name" "yamer003" }}`** function which abstracts the native credential store:
+
+| Platform | Backend | Store command |
+|----------|---------|---------------|
+| macOS | Keychain | `security add-generic-password -a "yamer003" -s "<name>" -w "VALUE" -U` |
+| Linux | Secret Service (gnome-keyring) | `echo -n "VALUE" \| secret-tool store --label="<name>" service "<name>" username "yamer003"` |
+| Windows | Credential Manager | via `cmdkey` or GUI |
+
+**⚠️ IMPORTANT: On Linux, secrets MUST use `username` attribute (not `account`)** — `go-keyring` (used by chezmoi) looks up by `{ service, username }`. Using `account` instead will cause "secret not found" errors.
+
+### How it works
+
+`{{ keyring }}` uses Go's `go-keyring` library (strategy pattern):
+- Detects the OS at runtime
+- Calls the platform-native credential API
+- No OS branching needed in templates
+
+### Storing secrets
+
 ```bash
-security find-generic-password -a "yamer003" -s "<service-name>" -w
+# macOS
+security add-generic-password -a "yamer003" -s "<service-name>" -w "VALUE" -U
+
+# Linux (gnome-keyring) — NOTE: use 'username' not 'account'
+echo -n "VALUE" | secret-tool store --label="<service-name>" service "<service-name>" username "yamer003"
+
+# Verify on Linux
+secret-tool lookup service "<service-name>" username "yamer003"
 ```
+
+### Template usage
+
+```
+{{- /* Single line, works on macOS + Linux + Windows */ -}}
+{{ keyring "bb9-api-key" "yamer003" }}
+```
+
+**Never do this** (old pattern, removed):
+```
+{{- if eq .os "darwin" -}}
+{{ output "security" ... }}
+{{- else -}}
+{{ output "secret-tool" ... }}
+{{- end -}}
+```
+
+### WSL-specific: gnome-keyring setup
+
+On NixOS-WSL, gnome-keyring must be unlocked before `chezmoi apply`:
+```bash
+export XDG_RUNTIME_DIR=/run/user/1000
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+echo "" | gnome-keyring-daemon --unlock --components=secrets
+```
+The NixOS config (`nix/nixos/wsl.nix`) sets session env vars and auto-unlock.
+
+### Secret inventory
 
 | Service Name | What |
 |---|---|
@@ -106,6 +159,9 @@ security find-generic-password -a "yamer003" -s "<service-name>" -w
 # Apply system + dotfiles (macOS)
 cd ~/.dotfiles && darwin-rebuild switch --flake .#MacBookProM3 && chezmoi apply
 
+# Apply system + dotfiles (NixOS-WSL)
+cd ~/.dotfiles && sudo nixos-rebuild switch --flake .#nixos-wsl && chezmoi apply
+
 # Apply only dotfiles
 chezmoi apply
 
@@ -121,8 +177,11 @@ chezmoi add ~/.config/somefile
 # Check for secrets before committing
 prek run --all-files
 
-# Store a new secret
+# Store a new secret (macOS)
 security add-generic-password -a "yamer003" -s "new-secret-name" -w "VALUE" -U
+
+# Store a new secret (Linux) — NOTE: 'username' not 'account'
+echo -n "VALUE" | secret-tool store --label="new-secret-name" service "new-secret-name" username "yamer003"
 ```
 
 ---
@@ -161,7 +220,10 @@ echo "FINGERPRINT" >> .gitleaksignore
 - **SSH keys persist in Keychain** via `ssh-add --apple-use-keychain`. Survives reboots.
 - **chezmoi `sourceDir`** must be set at root level in `~/.config/chezmoi/chezmoi.toml` (not under `[chezmoi]`).
 - **`chezmoi init`** resets `sourceDir` — always re-set it after running init.
-- **Nushell env vars from Keychain** use `(security find-generic-password ... | str trim)` syntax.
+- **Nushell env vars from Keychain** use `(security find-generic-password ... | str trim)` syntax. These are NOT yet migrated to `keyring` (nushell env.nu is a plain file, not a chezmoi template — needs manual OS detection).
+- **chezmoi `{{ keyring }}` requires `username` attribute on Linux** — `go-keyring` uses `{ service, username }` for Secret Service lookups. Storing with `account` instead of `username` will silently fail.
+- **gnome-keyring in WSL** needs `XDG_RUNTIME_DIR=/run/user/1000` and `DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus`. The NixOS config sets these as session variables.
+- **WSL distros share network namespace** — NixOS-WSL uses Ubuntu's cntlm proxy on `127.0.0.1:3128` and dnsmasq on `127.0.0.1:53` directly (no port forwarding needed).
 - **Corp network detection** in nushell caches DNS result for 5 min at `/tmp/.nu_corp_network_cache`.
 - **`allowUnfreePredicate`** is preferred over `allowUnfree = true` — be explicit about which unfree packages.
 - **Git identity**: default is personal (`yehamer@gmail.com`). Work identity via `includeIf` or manual gitconfig switch. Both configs in `chezmoi/dot_config/gitconfigs/`.
