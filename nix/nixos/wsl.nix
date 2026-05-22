@@ -1,4 +1,4 @@
-# NixOS-WSL configuration
+# NixOS-WSL configuration — fully independent (own proxy + DNS)
 { config, pkgs, lib, ... }:
 {
   # ── WSL ──
@@ -20,6 +20,81 @@
     HTTPS_PROXY = "http://127.0.0.1:3128";
     NO_PROXY = "localhost,127.0.0.1,::1,.db.de,.rz.db.de";
     NODE_USE_ENV_PROXY = "1";
+  };
+
+  # ── cntlm (NTLM authenticating proxy — makes this system independent) ──
+  # Config with NTLM hash lives at /etc/cntlm.conf (NOT in git — contains credential hash)
+  # First-time setup:
+  #   sudo tee /etc/cntlm.conf << 'EOF'
+  #   Username    YehiaAmer
+  #   Domain      BKU
+  #   Auth        NTLMv2
+  #   PassNTLMv2  <YOUR_HASH>
+  #   Proxy       10.136.62.193:8080
+  #   NoProxy     localhost, 127.0.0.*
+  #   Listen      3128
+  #   EOF
+  #   sudo chmod 600 /etc/cntlm.conf
+  # Generate hash: cntlm -H -d BKU -u YehiaAmer 10.136.62.193:8080
+  environment.systemPackages = with pkgs; [
+    git
+    curl
+    wget
+    cntlm
+    libsecret
+    gnome-keyring
+    dbus
+    cloudflared
+  ];
+
+  systemd.services.cntlm = {
+    description = "CNTLM NTLM authenticating proxy";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.cntlm}/bin/cntlm -c /etc/cntlm.conf -v -f";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+  };
+
+  # ── DNS (fully independent — own dnsmasq + cloudflared) ──
+  networking.resolvconf.enable = false;
+  environment.etc."resolv.conf".text = ''
+    nameserver 127.0.0.1
+  '';
+
+  # dnsmasq: split DNS (corp → corp DNS, external → cloudflared DoH)
+  services.dnsmasq = {
+    enable = true;
+    settings = {
+      server = [
+        "/db.de/10.255.255.254"
+        "/rz.db.de/10.255.255.254"
+        "127.0.0.1#5053"
+      ];
+      no-resolv = true;
+      listen-address = "127.0.0.1";
+      bind-interfaces = true;
+    };
+  };
+
+  # cloudflared: DNS-over-HTTPS (reaches Cloudflare via cntlm proxy)
+  systemd.services.cloudflared-dns = {
+    description = "Cloudflared DNS-over-HTTPS proxy";
+    after = [ "network.target" "cntlm.service" ];
+    wants = [ "cntlm.service" ];
+    wantedBy = [ "multi-user.target" ];
+    environment = {
+      HTTP_PROXY = "http://127.0.0.1:3128";
+      HTTPS_PROXY = "http://127.0.0.1:3128";
+    };
+    serviceConfig = {
+      ExecStart = "${pkgs.cloudflared}/bin/cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query --upstream https://1.0.0.1/dns-query";
+      Restart = "on-failure";
+      RestartSec = 5;
+      DynamicUser = true;
+    };
   };
 
   # ── Nix settings ──
@@ -62,15 +137,6 @@
   # Allow wheel group passwordless sudo (convenient for WSL)
   security.sudo.wheelNeedsPassword = false;
 
-  # ── System packages (minimal — most come from Home Manager) ──
-  environment.systemPackages = with pkgs; [
-    git
-    curl
-    wget
-    libsecret  # provides secret-tool for chezmoi templates
-    gnome-keyring
-    dbus
-  ];
 
   # Enable gnome-keyring for secret-tool (headless)
   services.gnome.gnome-keyring.enable = true;
@@ -95,12 +161,6 @@
     if [ -f "$PI_CLI" ] && head -1 "$PI_CLI" | grep -q "node"; then
       sed -i '1s|#!/usr/bin/env node|#!/usr/bin/env bun|' "$PI_CLI"
     fi
-  '';
-
-  # ── DNS (uses Ubuntu WSL's dnsmasq via shared network namespace) ──
-  networking.resolvconf.enable = false;
-  environment.etc."resolv.conf".text = ''
-    nameserver 127.0.0.1
   '';
 
   system.stateVersion = "24.11";
