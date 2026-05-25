@@ -2,6 +2,52 @@
 # Sourced by Home Manager's zsh framework via:
 #   [[ -f ~/.config/zsh/local.zsh ]] && source ~/.config/zsh/local.zsh
 
+# ── Essential PATHs (Home Manager owns .zshenv, so PATH goes here) ──
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.rd/bin:$PATH"
+export PATH="$HOME/.atuin/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+{{- if eq .os "darwin" }}
+export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+export PATH="/usr/local/share/dotnet:$PATH"
+{{- end }}
+
+# ── Cargo/Rust ──
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+{{- if eq .os "darwin" }}
+# ── Homebrew ──
+if [ -d /opt/homebrew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{- end }}
+
+# ── Google Cloud SDK ──
+export GOOGLE_CLOUD_PROJECT='pg-ae-n-app-237049'
+export VERTEX_LOCATION='global'
+export GOOGLE_CLOUD_LOCATION='global'
+export GOOGLE_GENAI_USE_VERTEXAI='true'
+{{- if eq .os "darwin" }}
+if [ -f '/Applications/Utilities/google-cloud-sdk/path.zsh.inc' ]; then
+  . '/Applications/Utilities/google-cloud-sdk/path.zsh.inc'
+fi
+{{- end }}
+
+{{- if .work }}
+# ── Corporate CA certificates ──
+CA={{ keyring "work-ca-cert-path" "yamer003" }}
+if [ -f "$CA" ]; then
+  export SSL_CERT_FILE="$CA"
+  export REQUESTS_CA_BUNDLE="$CA"
+  export CURL_CA_BUNDLE="$CA"
+  export NODE_EXTRA_CA_CERTS="$CA"
+  export GIT_SSL_CAINFO="$CA"
+  export PIP_CERT="$CA"
+fi
+{{- end }}
+
 # ── fnm (Fast Node Manager) ──
 eval "$(fnm env --use-on-cd)"
 alias nvm="echo 'nvm is gone. Use fnm instead: fnm list, fnm use, fnm install'"
