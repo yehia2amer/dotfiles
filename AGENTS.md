@@ -267,3 +267,56 @@ pi --resume 019e4f06-9fdd-709b-8867-02bd5aa2438c
 ```
 
 The HTML file is gitignored (not committed) but lives in `docs/` for local reference.
+
+---
+
+## WSL NixOS: SSH + Git Proxy (for agents)
+
+> **Scope:** This section applies ONLY to NixOS-WSL (`nixos-wsl`). Other machines do not use cntlm.
+
+On NixOS-WSL, all outbound traffic routes through cntlm (NTLM proxy at `127.0.0.1:3128`). SSH port 22 is blocked by the corporate firewall.
+
+### Git push/pull over SSH
+
+The SSH config at `~/.ssh/config` must include:
+
+```
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  ProxyCommand nc -X connect -x 127.0.0.1:3128 %h %p
+```
+
+This routes SSH through the cntlm proxy to GitHub's port-443 SSH endpoint.
+
+### Git identity for this repo
+
+This repo uses **personal** git identity (not work). The `.gitconfig` file at the repo root sets:
+```ini
+[user]
+    name = Yehia Amer
+    email = yehamer@gmail.com
+```
+
+Agents MUST NOT commit with the work email to this repo. If `git config user.email` returns a work address, set the repo-local override:
+```bash
+git config user.email yehamer@gmail.com
+git config user.name "Yehia Amer"
+```
+
+### Remote URL
+
+Always use SSH (not HTTPS) for this repo on WSL:
+```
+git@github.com:yehia2amer/dotfiles.git
+```
+
+HTTPS will fail because the Windows credential manager provides work credentials that don't have access to the personal GitHub account.
+
+### Troubleshooting
+
+- **`ssh: connect to host github.com port 22: Connection timed out`** → SSH config missing or cntlm not running. Check `systemctl status cntlm`.
+- **`Permission denied (publickey)`** → SSH key not added to GitHub. Run `cat ~/.ssh/id_ed25519.pub` and add at https://github.com/settings/ssh/new.
+- **`Connection closed by ... port 443`** → Key exists but is not registered with the correct GitHub account.
+- **HTTPS `403 denied to ...`** → Using HTTPS instead of SSH. Switch: `git remote set-url origin git@github.com:yehia2amer/dotfiles.git`
