@@ -187,5 +187,7 @@
     fi
   '';
 
+  services.vscode-server.enable = true;
+
   system.stateVersion = "24.11";
 }
