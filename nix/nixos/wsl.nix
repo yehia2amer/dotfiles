@@ -20,6 +20,12 @@
     HTTPS_PROXY = "http://127.0.0.1:3128";
     NO_PROXY = "localhost,127.0.0.1,::1,.db.de,.rz.db.de";
     NODE_USE_ENV_PROXY = "1";
+
+    # Help Python native extensions from uv-managed virtualenvs (grpc, greenlet,
+    # etc.) find libstdc++ on NixOS when launched outside a nix shell.
+    LD_LIBRARY_PATH = lib.makeLibraryPath [
+      pkgs.stdenv.cc.cc.lib
+    ];
   };
 
   # ── cntlm (NTLM authenticating proxy — makes this system independent) ──
