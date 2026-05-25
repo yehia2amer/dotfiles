@@ -80,7 +80,7 @@
   };
 
   # dnscrypt-proxy: DNS-over-HTTPS (replaces deprecated cloudflared proxy-dns)
-  services.dnscrypt-proxy2 = {
+  services.dnscrypt-proxy = {
     enable = true;
     settings = {
       listen_addresses = [ "127.0.0.1:5053" ];
@@ -125,7 +125,6 @@
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_17;
-    enableTCPIP = true;
     settings = {
       listen_addresses = lib.mkForce "127.0.0.1,::1";
     };

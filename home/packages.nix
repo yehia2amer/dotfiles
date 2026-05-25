@@ -27,7 +27,7 @@
     yt-dlp
 
     # Cloud & Infrastructure
-    awscli
+    awscli2
     azure-cli
     cloudflared
     opentofu
