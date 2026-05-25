@@ -9,6 +9,16 @@ Host github.com
   IdentityFile ~/.ssh/id_ed25519
 {{- end }}
 
+{{- if eq .machine "nixos-wsl" }}
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ProxyCommand nc -X connect -x 127.0.0.1:3128 %h %p
+{{- end }}
+
 Host personal-github-projects
   HostName github.com
   User git

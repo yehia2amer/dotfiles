@@ -175,7 +175,7 @@
     libgit2
     libuchardet
     openfga
-    postgresql
+    postgresql_17
     protoc-gen-go
     protoc-gen-go-grpc
     resvg

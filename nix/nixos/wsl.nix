@@ -121,6 +121,23 @@
     };
   };
 
+  # PostgreSQL for local development in WSL
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_17;
+    enableTCPIP = true;
+    settings = {
+      listen_addresses = lib.mkForce "127.0.0.1,::1";
+    };
+    ensureDatabases = [ "yamer003" ];
+    ensureUsers = [
+      {
+        name = "yamer003";
+        ensureDBOwnership = true;
+      }
+    ];
+  };
+
   # ── Nix settings ──
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
