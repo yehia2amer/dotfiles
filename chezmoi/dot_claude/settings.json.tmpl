@@ -1,12 +1,10 @@
 {{- /* Claude Code settings — paths are machine-specific */ -}}
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "{{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-genai-base-url" "-w" | trim }}",
+    "ANTHROPIC_BASE_URL": "{{ keyring "work-genai-base-url" "yamer003" }}",
+    "ANTHROPIC_AUTH_TOKEN": "{{ keyring "litellm-api-key" "yamer003" }}",
 {{- if eq .os "darwin" }}
-    "ANTHROPIC_AUTH_TOKEN": "{{ output "security" "find-generic-password" "-a" "yamer003" "-s" "litellm-api-key" "-w" | trim }}",
     "NODE_EXTRA_CA_CERTS": "{{ .chezmoi.homeDir }}/.claude/certs/corporate-ca-bundle.pem",
-{{- else }}
-    "ANTHROPIC_AUTH_TOKEN": "{{ output "secret-tool" "lookup" "service" "litellm-api-key" "account" "yamer003" | trim }}",
 {{- end }}
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-6",

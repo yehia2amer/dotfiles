@@ -17,7 +17,9 @@
 
 
   home.username = "yamer003";
-  home.homeDirectory = lib.mkForce "/Users/yamer003";
+  home.homeDirectory = lib.mkForce (
+    if pkgs.stdenv.isDarwin then "/Users/yamer003" else "/home/yamer003"
+  );
 
   home.stateVersion = "24.11";
   programs.home-manager.enable = true;

@@ -27,7 +27,7 @@
     yt-dlp
 
     # Cloud & Infrastructure
-    awscli
+    awscli2
     azure-cli
     cloudflared
     opentofu
@@ -134,6 +134,9 @@
     trivy
     trufflehog
 
+    # Dotfiles Management
+    chezmoi
+
     # Shell & Terminal
     atuin
     carapace
@@ -173,7 +176,7 @@
     libgit2
     libuchardet
     openfga
-    postgresql
+    postgresql_17
     protoc-gen-go
     protoc-gen-go-grpc
     resvg

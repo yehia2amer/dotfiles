@@ -1,6 +1,6 @@
 {{- /* .zshenv — loaded by ALL zsh shells (login, interactive, scripts) */ -}}
 # ── Cargo/Rust ──
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 {{- if eq .os "darwin" }}
 
@@ -29,6 +29,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 {{- end }}
 export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$HOME/.rd/bin:$PATH"
 export PATH="$HOME/.atuin/bin:$PATH"
 {{- if eq .os "darwin" }}
@@ -36,7 +37,7 @@ export PATH="/usr/local/share/dotnet:$PATH"
 {{- end }}
 
 {{- if .work }}
-CA={{ output "security" "find-generic-password" "-a" "yamer003" "-s" "work-ca-cert-path" "-w" | trim }}
+CA={{ keyring "work-ca-cert-path" "yamer003" }}
 if [ -f "$CA" ]; then
   export SSL_CERT_FILE="$CA"
   export REQUESTS_CA_BUNDLE="$CA"

@@ -14,13 +14,21 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    systems.url = "github:nix-systems/default-linux";
+
+    vscode-server = {
+      url = "github:nix-community/nixos-vscode-server";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.inputs.systems.follows = "systems";
+    };
+
     nixos-wsl = {
       url = "github:nix-community/NixOS-WSL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, nixos-wsl, ... }:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, nixos-wsl, vscode-server, ... }:
   let
     systems = {
       darwin = "aarch64-darwin";
@@ -37,7 +45,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "hm-backup";
+          home-manager.backupFileExtension = "bak";
           home-manager.users.yamer003 = { pkgs, ... }: {
             imports = [ ./home ];
             home.homeDirectory = "/Users/yamer003";
@@ -55,6 +63,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "bak";
           home-manager.users.yamer003 = import ./home;
         }
       ];
@@ -69,6 +78,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "bak";
           home-manager.users.yamer003 = import ./home;
         }
       ];
@@ -79,11 +89,13 @@
       system = systems.linux;
       modules = [
         nixos-wsl.nixosModules.wsl
+        vscode-server.nixosModules.default
         ./nix/nixos/wsl.nix
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "bak";
           home-manager.users.yamer003 = import ./home;
         }
       ];
