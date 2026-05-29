@@ -55,7 +55,7 @@ Path,Owner,Category,Rationale
 ~/.config/zed/settings.json,Chezmoi (dot_config/zed/settings.json),CHEZMOI,Zed editor — AI agents config
 ~/.config/zellij/config.kdl,Chezmoi (dot_config/zellij/config.kdl),CHEZMOI,Terminal mux — heavy keybind customization
 ~/.config/zellij/layouts/,Chezmoi (dot_config/zellij/layouts/),CHEZMOI,Custom layouts
-~/.config/zsh/local.zsh,Chezmoi (dot_config/zsh/local.zsh),CHEZMOI,Aliases functions corp env — sourced by HM zsh
+~/.config/zsh/local.zsh,Chezmoi (dot_config/zsh/local.zsh),CHEZMOI,Aliases functions corp env — sourced by Chezmoi zshrc
 ~/.continue/,Chezmoi (dot_continue/),CHEZMOI,Continue AI IDE config
 ~/.curlrc,NOT TRACKED,REPLACED,Corp CA path — now in .zshenv template
 ~/.cursor/mcp.json,Chezmoi (dot_cursor/mcp.json),CHEZMOI,Cursor MCP server definitions
@@ -84,7 +84,7 @@ Path,Owner,Category,Rationale
 ~/.zprofile,Chezmoi (dot_zprofile.tmpl),CHEZMOI,Zsh login — MacPorts PATH per-machine
 ~/.zsh_plugins.txt,Chezmoi (dot_zsh_plugins.txt),CHEZMOI,Antidote plugin list
 ~/.zshenv,Chezmoi (dot_zshenv.tmpl),CHEZMOI,Zsh env — PATH certs gcloud per-machine
-~/.zshrc,Home Manager (shell/zsh.nix) + Chezmoi,SPLIT,HM generates framework + sources chezmoi local.zsh
+~/.zshrc,Chezmoi (dot_zshrc.tmpl),CHEZMOI,Interactive zsh framework — sources local.zsh and initializes prompt/history from PATH
 ~/.agents/.skill-lock.json,Chezmoi (dot_agents/.skill-lock.json),CHEZMOI,Agent skill lock
 ~/.agents/scripts/,Chezmoi (dot_agents/scripts/),CHEZMOI,Model sync scripts
 ~/.agents/skills/,NOT TRACKED,EXTERNAL,200+ skills — too large consider .chezmoiexternal

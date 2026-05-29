@@ -32,6 +32,7 @@
     cloudflared
     opentofu
     pulumi
+    pulumiPackages.pulumi-python
     vault-bin
 
     # Containers & Kubernetes

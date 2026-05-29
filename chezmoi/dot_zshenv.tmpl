@@ -22,6 +22,7 @@ fi
 {{- end }}
 
 # ── Essential PATHs ──
+export PATH="/etc/profiles/per-user/$USER/bin:$PATH"
 export PATH="$HOME/.nix-profile/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 {{- if eq .os "darwin" }}

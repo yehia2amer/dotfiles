@@ -1,5 +1,5 @@
 {{- if eq .os "darwin" -}}
-pinentry-program /opt/homebrew/bin/pinentry-mac
+pinentry-program /etc/profiles/per-user/{{ .chezmoi.username }}/bin/pinentry-mac
 {{- else -}}
 pinentry-program /usr/bin/pinentry-gtk-2
 {{- end }}

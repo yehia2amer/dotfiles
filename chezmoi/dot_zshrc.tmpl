@@ -1,0 +1,25 @@
+{{- /* .zshrc — interactive zsh shell config */ -}}
+# ~/.zshrc — interactive zsh config managed by Chezmoi
+
+# Keep Nix profile paths available even if a long-lived shell started before
+# nix-darwin switched Home Manager generations.
+export PATH="/etc/profiles/per-user/$USER/bin:$HOME/.nix-profile/bin:$PATH"
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
+# Source Chezmoi-managed local config (aliases, functions, completions, AI env).
+[[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
+
+# Atuin shell history integration.
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh)"
+fi
+
+# Starship prompt. Resolve from PATH so nix-darwin profile moves do not break shells.
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"

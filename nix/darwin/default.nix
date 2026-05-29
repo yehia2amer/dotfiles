@@ -1,4 +1,29 @@
 { pkgs, lib, ... }:
+let
+  primaryUser = "yamer003";
+  homeDirectory = "/Users/${primaryUser}";
+  userBinPath = [
+    "/etc/profiles/per-user/${primaryUser}/bin"
+    "${homeDirectory}/.nix-profile/bin"
+    "${homeDirectory}/.local/bin"
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
+    "/Applications/Postgres.app/Contents/Versions/latest/bin"
+    "${homeDirectory}/.bun/bin"
+    "${homeDirectory}/.rd/bin"
+    "${homeDirectory}/.atuin/bin"
+    "/usr/local/share/dotnet"
+  ];
+  baseBinPath = userBinPath ++ [
+    "/run/current-system/sw/bin"
+    "/nix/var/nix/profiles/default/bin"
+    "/usr/local/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
+in
 {
   # System packages (minimal — most go in Home Manager)
   environment.systemPackages = with pkgs; [
@@ -6,8 +31,12 @@
     git
   ];
 
+  environment.systemPath = userBinPath;
+
+  launchd.user.envVariables.PATH = baseBinPath;
+
   # Primary user (required for system.defaults)
-  system.primaryUser = "yamer003";
+  system.primaryUser = primaryUser;
 
   # Nix settings
   nix.settings.experimental-features = "nix-command flakes";

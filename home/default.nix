@@ -4,8 +4,6 @@
     ./packages.nix
     ./packages-darwin.nix
     ./packages-linux.nix
-    ./shell/zsh.nix
-    ./shell/fish.nix
     ./shell/nushell.nix
     ./programs/git.nix
     ./programs/starship.nix
@@ -24,8 +22,8 @@
   home.stateVersion = "24.11";
   programs.home-manager.enable = true;
 
-  # Avoid conflicts when nushell/fish/zsh are also managed by chezmoi
-  # Home Manager only enables the programs, config files come from chezmoi
+  # Avoid conflicts when shells are managed by Chezmoi.
+  # Fish and zsh are installed as packages; their config files come from Chezmoi.
   programs.nushell.configFile.source = lib.mkDefault null;
   programs.nushell.envFile.source = lib.mkDefault null;
 }

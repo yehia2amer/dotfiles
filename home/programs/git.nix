@@ -14,18 +14,11 @@
       pull.rebase = false;
       merge.ff = true;
       core.autocrlf = "input";
+      core.excludesfile = "~/.gitignore";
       credential.helper = if pkgs.stdenv.isDarwin then "osxkeychain" else "libsecret";
       # Include machine-local overrides managed by Chezmoi
       include.path = "~/.config/git/local.gitconfig";
     };
-
-    ignores = [
-      ".DS_Store"
-      ".qodo"
-      ".dolt/"
-      "*.db"
-      ".beads-credential-key"
-    ];
   };
 
   programs.delta = {

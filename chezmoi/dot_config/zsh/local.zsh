@@ -3,8 +3,10 @@
 #   [[ -f ~/.config/zsh/local.zsh ]] && source ~/.config/zsh/local.zsh
 
 # ── fnm (Fast Node Manager) ──
-eval "$(fnm env --use-on-cd)"
-alias nvm="echo 'nvm is gone. Use fnm instead: fnm list, fnm use, fnm install'"
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd)"
+  alias nvm="echo 'nvm is gone. Use fnm instead: fnm list, fnm use, fnm install'"
+fi
 
 # ── Rust CLI drop-in replacements ──
 alias cat="bat"
