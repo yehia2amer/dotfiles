@@ -5,9 +5,12 @@
     enable = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
-    enableNushellIntegration = true;
+    # Nushell integration is handled in Chezmoi-managed nu config.
+    enableNushellIntegration = false;
 
     settings = {
+      command_timeout = 3000;
+
       character = {
         success_symbol = "[❯](bold green) ";
         error_symbol = "[✗](bold red) ";

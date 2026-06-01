@@ -5,6 +5,7 @@
     enable = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
-    enableNushellIntegration = true;
+    # Nushell integration is handled in Chezmoi-managed nu config.
+    enableNushellIntegration = false;
   };
 }

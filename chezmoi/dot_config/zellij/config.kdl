@@ -324,7 +324,7 @@ load_plugins {
 // Default: $SHELL
 // 
 // default_shell "/opt/homebrew/bin/nu"  // brew2nix: was hardcoded to brew
-default_shell "/Users/yamer003/.nix-profile/bin/nu"
+default_shell "/etc/profiles/per-user/yamer003/bin/nu"
 
 env {
     XDG_CONFIG_HOME "/Users/yamer003/.config"

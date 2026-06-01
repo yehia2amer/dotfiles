@@ -54,7 +54,7 @@ in
       AppleInterfaceStyleSwitchesAutomatically = true;
     };
     dock = {
-      autohide = true;
+      autohide = false;
       show-recents = false;
     };
     finder = {

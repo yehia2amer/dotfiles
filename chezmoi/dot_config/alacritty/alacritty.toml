@@ -38,7 +38,8 @@ size = 17.0
 
 [terminal]
 # shell.program = "/opt/homebrew/bin/zellij"  # brew2nix: was hardcoded to brew
-shell.program = "/Users/yamer003/.nix-profile/bin/zellij"
+# nix-profile is a symlink farm that does NOT include HM packages on nix-darwin; use /etc/profiles/per-user instead
+shell.program = "/etc/profiles/per-user/yamer003/bin/zellij"
 
 # Tip: for inspiration, look for values in the source code files of your favorite VS Code themes, and use the color picker in
 # Google to test colors before setting a value, or simply using an editor such as VS Code where colors are displayed in a 

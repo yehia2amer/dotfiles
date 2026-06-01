@@ -121,7 +121,12 @@
     iperf3
     k6
     minicom
-    rclone
+    (if pkgs.stdenv.isDarwin then
+      (rclone.overrideAttrs (_: {
+        buildInputs = [ (pkgs.macfuse-stubs.override { isFuse3 = false; }) ];
+        tags = [ "cmount" ];
+      }))
+    else rclone)
     sshpass
 
     # Security & Scanning

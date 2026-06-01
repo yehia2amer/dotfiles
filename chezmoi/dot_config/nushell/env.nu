@@ -97,6 +97,7 @@ use std/util "path add"
 # path add ($env.HOME | path join ".local" "bin")
 # $env.PATH = ($env.PATH | uniq)
 # path add /opt/homebrew/bin  # brew2nix: nix-profile is now in PATH instead
+path add /etc/profiles/per-user/yamer003/bin  # nix-darwin HM packages land here, not .nix-profile/bin
 path add /Users/yamer003/.nix-profile/bin
 path add /Users/yamer003/.bun/bin
 path add /usr/bin
@@ -115,33 +116,39 @@ path add '/Users/yamer003/Documents/portable_apps'
 path add '/Applications/Postgres.app/Contents/Versions/latest/bin'
 
 # fnm (Fast Node Manager) initialization
-let fnm_env = (^fnm env --json | from json)
-$env.FNM_MULTISHELL_PATH = $fnm_env.FNM_MULTISHELL_PATH
-$env.FNM_DIR = $fnm_env.FNM_DIR
-$env.FNM_LOGLEVEL = $fnm_env.FNM_LOGLEVEL
-$env.FNM_NODE_DIST_MIRROR = $fnm_env.FNM_NODE_DIST_MIRROR
-$env.FNM_RESOLVE_ENGINES = $fnm_env.FNM_RESOLVE_ENGINES
-$env.FNM_VERSION_FILE_STRATEGY = $fnm_env.FNM_VERSION_FILE_STRATEGY
-$env.FNM_COREPACK_ENABLED = $fnm_env.FNM_COREPACK_ENABLED
-$env.FNM_ARCH = $fnm_env.FNM_ARCH
-path add ($fnm_env.FNM_MULTISHELL_PATH | path join "bin")
+if (which fnm | is-not-empty) {
+    let fnm_env = (^fnm env --json | from json)
+    $env.FNM_MULTISHELL_PATH = $fnm_env.FNM_MULTISHELL_PATH
+    $env.FNM_DIR = $fnm_env.FNM_DIR
+    $env.FNM_LOGLEVEL = $fnm_env.FNM_LOGLEVEL
+    $env.FNM_NODE_DIST_MIRROR = $fnm_env.FNM_NODE_DIST_MIRROR
+    $env.FNM_RESOLVE_ENGINES = $fnm_env.FNM_RESOLVE_ENGINES
+    $env.FNM_VERSION_FILE_STRATEGY = $fnm_env.FNM_VERSION_FILE_STRATEGY
+    $env.FNM_COREPACK_ENABLED = $fnm_env.FNM_COREPACK_ENABLED
+    $env.FNM_ARCH = $fnm_env.FNM_ARCH
+    path add ($fnm_env.FNM_MULTISHELL_PATH | path join "bin")
+}
 
 # To load from a custom file you can use:
 # source ($nu.default-config-dir | path join 'custom.nu')
 
 mkdir ~/.cache/starship
 # Regenerate starship init only when binary changes
-let starship_bin = (which starship | get 0.path)
 let starship_cache = ($"($nu.home-dir)/.cache/starship/init.nu")
-if not ($starship_cache | path exists) or (ls $starship_bin | get 0.modified) > (ls $starship_cache | get 0.modified) {
-  starship init nu | save -f $starship_cache
+if (which starship | is-not-empty) {
+  let starship_bin = (which starship | get 0.path)
+  if not ($starship_cache | path exists) or (ls $starship_bin | get 0.modified) > (ls $starship_cache | get 0.modified) {
+    starship init nu | save -f $starship_cache
+  }
 }
 
 # Regenerate zoxide init only when binary changes
-let zoxide_bin = (which zoxide | get 0.path)
 let zoxide_cache = ($"($nu.home-dir)/.zoxide.nu")
-if not ($zoxide_cache | path exists) or (ls $zoxide_bin | get 0.modified) > (ls $zoxide_cache | get 0.modified) {
-  zoxide init nushell | save -f $zoxide_cache
+if (which zoxide | is-not-empty) {
+  let zoxide_bin = (which zoxide | get 0.path)
+  if not ($zoxide_cache | path exists) or (ls $zoxide_bin | get 0.modified) > (ls $zoxide_cache | get 0.modified) {
+    zoxide init nushell | save -f $zoxide_cache
+  }
 }
 
 $env.STARSHIP_CONFIG = '/Users/yamer003/.config/starship/starship.toml'
@@ -149,10 +156,12 @@ $env.STARSHIP_CONFIG = '/Users/yamer003/.config/starship/starship.toml'
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
 mkdir ~/.cache/carapace
 # Regenerate carapace init only when binary changes (compat patch removed — fixed in v1.4+)
-let carapace_bin = (which carapace | get 0.path)
 let carapace_cache = ($"($nu.home-dir)/.cache/carapace/init.nu")
-if not ($carapace_cache | path exists) or (ls $carapace_bin | get 0.modified) > (ls $carapace_cache | get 0.modified) {
-  carapace _carapace nushell | save --force $carapace_cache
+if (which carapace | is-not-empty) {
+  let carapace_bin = (which carapace | get 0.path)
+  if not ($carapace_cache | path exists) or (ls $carapace_bin | get 0.modified) > (ls $carapace_cache | get 0.modified) {
+    carapace _carapace nushell | save --force $carapace_cache
+  }
 }
 
 $env.GITHUB_TOKEN = (security find-generic-password -a "yamer003" -s "github-token-nushell" -w | str trim)

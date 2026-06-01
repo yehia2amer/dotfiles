@@ -1092,12 +1092,47 @@ def oc [] {
 }
 
 # source ~/.config/nushell/env.nu
-source ~/.zoxide.nu
-source ~/.cache/carapace/init.nu
-source ~/.local/share/atuin/init.nu
-use ~/.cache/starship/init.nu
+if (which zoxide | is-not-empty) and (("~/.zoxide.nu" | path expand) | path exists) {
+    source ~/.zoxide.nu
+}
+if (("~/.cache/carapace/init.nu" | path expand) | path exists) {
+    source ~/.cache/carapace/init.nu
+}
+if (which atuin | is-not-empty) and (("~/.local/share/atuin/init.nu" | path expand) | path exists) {
+    source ~/.local/share/atuin/init.nu
+}
+if (which starship | is-not-empty) and (("~/.cache/starship/init.nu" | path expand) | path exists) {
+    use ~/.cache/starship/init.nu
+}
 source ~/.config/nushell/scripts/gpr.nu
 use ~/.config/nushell/scripts/profiler.nu *
+
+$env.config.hooks.pre_prompt = (
+    ($env.config.hooks.pre_prompt? | default [])
+    | append {||
+        if (which direnv | is-not-empty) {
+            direnv export json
+                | from json --strict
+                | default {}
+                | items {|key, value|
+                    let value = do (
+                        {
+                            "PATH": {
+                                from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+                                to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
+                            }
+                        }
+                        | merge ($env.ENV_CONVERSIONS? | default {})
+                        | get ([[value, optional, insensitive]; [$key, true, true] [from_string, true, false]] | into cell-path)
+                        | if ($in | is-empty) { {|x| $x} } else { $in }
+                    ) $value
+                    return [ $key $value ]
+                }
+                | into record
+                | load-env
+        }
+    }
+)
 
 # ── REPL timing hooks (appended after all sources so Atuin hooks are preserved) ──
 $env.config.hooks.pre_execution = (

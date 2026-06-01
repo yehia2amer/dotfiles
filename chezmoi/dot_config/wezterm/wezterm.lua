@@ -136,11 +136,11 @@ config.launch_menu = {
   },
   {
     label = '🐟 Fish',
-    args = { '/Users/yamer003/.nix-profile/bin/fish', '-l' },
+    args = { '/etc/profiles/per-user/yamer003/bin/fish', '-l' },
   },
   {
     label = '🚀 Nushell',
-    args = { '/Users/yamer003/.nix-profile/bin/nu', '-l' },
+    args = { '/etc/profiles/per-user/yamer003/bin/nu', '-l' },
   },
 }
 
