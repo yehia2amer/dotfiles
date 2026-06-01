@@ -972,7 +972,7 @@ alias python3 = echo "Direct python3 is disabled. Use: uv run python, uv run scr
 alias node = echo "node is disabled. Use bun instead: bun run, bun index.js"
 alias npm = echo "npm is disabled. Use bun instead: bun install, bun add, bun remove, bun run"
 alias pnpm = echo "pnpm is disabled. Use bun instead: bun install, bun add, bun remove, bun run"
-alias yarn = echo "yarn is disabled. Use bun instead: bun install, bun add, bun remove, bun run"
+# alias yarn = echo "yarn is disabled. Use bun instead: bun install, bun add, bun remove, bun run"
 alias npx = echo "npx is disabled. Use bunx instead: bunx <package>"
 
 
