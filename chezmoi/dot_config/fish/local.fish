@@ -5,6 +5,7 @@
 fish_add_path -g /etc/profiles/per-user/$USER/bin
 fish_add_path -g $HOME/.nix-profile/bin
 fish_add_path -g $HOME/.local/bin
+fish_add_path -g $HOME/.krew/bin
 fish_add_path -g /opt/podman/bin
 
 # ── Container runtime (podman as docker drop-in) ──
