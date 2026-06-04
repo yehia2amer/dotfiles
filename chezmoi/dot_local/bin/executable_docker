@@ -1,0 +1,4 @@
+#!/bin/sh
+# docker → podman wrapper for tools that expect "docker" in PATH (e.g., kind)
+# Managed by Chezmoi — do not edit directly
+exec /opt/podman/bin/podman "$@"

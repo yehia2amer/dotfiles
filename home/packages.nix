@@ -43,6 +43,7 @@
     istioctl
     k3d
     k9s
+    kind
     krew
     kubecm
     kubeconform
