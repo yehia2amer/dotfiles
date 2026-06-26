@@ -10,6 +10,7 @@ Sync model metadata from the GenAI LiteLLM internal `/model/info` endpoint into:
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -309,7 +310,15 @@ def sync_opencode(chat_models: list[dict], dry_run: bool):
     return [f"OpenCode: upserted {updated} openai-compatible models"]
 
 
+# ── Chezmoi source for Claude settings ──
+CLAUDE_SETTINGS_TMPL = Path.home() / ".dotfiles/chezmoi/dot_claude/settings.json.tmpl"
+
+
 def sync_claude(chat_models: list[dict], dry_run: bool):
+    """Update both the live settings.json AND the chezmoi source template.
+
+    Keeps them in sync so neither overwrites the other with stale values.
+    """
     settings = load_json(CLAUDE_SETTINGS_JSON, default={})
     if settings is None:
         return [f"skip Claude: invalid {CLAUDE_SETTINGS_JSON}"]
@@ -317,24 +326,58 @@ def sync_claude(chat_models: list[dict], dry_run: bool):
     names = {m["model_name"] for m in chat_models}
     env = settings.setdefault("env", {})
     changes = []
-    mapping = {
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-8[1m]",
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6[1m]",
-        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "bedrock.anthropic.claude-haiku-4-5",
-    }
-    for key, value in mapping.items():
-        if value in names and env.get(key) != value:
-            env[key] = value
-            changes.append(f"{key}={value}")
+
+    # Find the latest model per family from the fetched list
+    model_keys = [
+        ("ANTHROPIC_DEFAULT_OPUS_MODEL", "opus"),
+        ("ANTHROPIC_DEFAULT_SONNET_MODEL", "sonnet"),
+        ("ANTHROPIC_DEFAULT_HAIKU_MODEL", "haiku"),
+    ]
+
+    for key, family in model_keys:
+        current_value = env.get(key, "")
+        candidates = sorted(
+            [n for n in names if family in n],
+            reverse=True,
+        )
+        if not candidates:
+            continue
+        best = candidates[0]
+        if best != current_value:
+            env[key] = best
+            changes.append(f"{key}: {current_value} → {best}")
 
     if dry_run:
-        return ["Claude: would update defaults" + (f" ({', '.join(changes)})" if changes else " (no changes)")]
+        if changes:
+            return [f"Claude: would update — {', '.join(changes)}"]
+        return ["Claude: already up to date"]
 
     if changes:
+        # Update live file
         backup_file(CLAUDE_SETTINGS_JSON)
         CLAUDE_SETTINGS_JSON.write_text(json.dumps(settings, indent=2) + "\n")
-        return [f"Claude: updated {len(changes)} default model env values"]
-    return ["Claude: no changes needed"]
+
+        # Update chezmoi source template (keep in sync)
+        if CLAUDE_SETTINGS_TMPL.exists():
+            tmpl_content = CLAUDE_SETTINGS_TMPL.read_text()
+            for key, family in model_keys:
+                old_value = current_value  # last seen
+                new_value = env.get(key, "")
+                # Find the old value for this specific key in template
+                for line_old in tmpl_content.splitlines():
+                    if key in line_old:
+                        # Extract the value between quotes after the key
+                        match = re.search(rf'"{key}":\s*"([^"]+)"', line_old)
+                        if match:
+                            old_in_tmpl = match.group(1)
+                            if old_in_tmpl != new_value:
+                                tmpl_content = tmpl_content.replace(old_in_tmpl, new_value)
+                        break
+            backup_file(CLAUDE_SETTINGS_TMPL)
+            CLAUDE_SETTINGS_TMPL.write_text(tmpl_content)
+
+        return [f"Claude: updated {len(changes)} models (live + chezmoi template)"]
+    return ["Claude: already up to date"]
 
 
 def main():
