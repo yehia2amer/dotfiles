@@ -104,7 +104,7 @@
       deno.format = "\\[[$symbol($version)]($style)\\]";
       dart.format = "\\[[$symbol($version)]($style)\\]";
       dotnet.format = "\\[[$symbol($version)(🎯 $tfm)]($style)\\]";
-      gcloud.format = "\\[[$symbol$account(@$domain)(\\($region\\))]($style)\\]";
+      gcloud.format = "\\[[GCP ☁️ ($region)]($style)\\]";  # Show "GCP ☁️ (region)" — no email
       ruby.format = "\\[[$symbol($version)]($style)\\]";
       scala.format = "\\[[$symbol($version)]($style)\\]";
       zig.format = "\\[[$symbol($version)]($style)\\]";

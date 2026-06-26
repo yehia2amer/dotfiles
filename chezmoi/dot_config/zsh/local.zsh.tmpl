@@ -177,3 +177,50 @@ if [ -f "$HOME/.claude/certs/corporate-ca-bundle.pem" ]; then
   export UV_NATIVE_TLS=1
 fi
 export DISABLE_PROMPT_CACHING=1
+
+# ── Nix Upgrade (brew upgrade equivalent) ──
+nix-upgrade() {
+  "$HOME/.dotfiles/scripts/upgrade.sh" "$@"
+}
+
+# ── iperf3 Network Speed Test (TrueNAS) ──
+lanspeed() {
+  local server="truenas.local"
+  local port=5201
+  local duration=10
+  local streams=4
+
+  # Load defaults if available
+  [[ -f ~/.config/iperf3/defaults.conf ]] && source ~/.config/iperf3/defaults.conf
+  server="${IPERF3_SERVER:-$server}"
+  port="${IPERF3_PORT:-$port}"
+
+  echo "⚡ Network Speed Test → $server:$port"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  case "${1:-full}" in
+    down|download)
+      echo "📥 Download (server → client):"
+      iperf3 -c "$server" -p "$port" -t "$duration" -P "$streams" -R
+      ;;
+    up|upload)
+      echo "📤 Upload (client → server):"
+      iperf3 -c "$server" -p "$port" -t "$duration" -P "$streams"
+      ;;
+    quick|q)
+      echo "🏃 Quick test (5s, single stream):"
+      echo "📤 Upload:"
+      iperf3 -c "$server" -p "$port" -t 5
+      echo ""
+      echo "📥 Download:"
+      iperf3 -c "$server" -p "$port" -t 5 -R
+      ;;
+    full|*)
+      echo "📤 Upload ($streams streams, ${duration}s):"
+      iperf3 -c "$server" -p "$port" -t "$duration" -P "$streams"
+      echo ""
+      echo "📥 Download ($streams streams, ${duration}s):"
+      iperf3 -c "$server" -p "$port" -t "$duration" -P "$streams" -R
+      ;;
+  esac
+}
