@@ -9,3 +9,4 @@ result
 
 # Pi session exports (for reference only, not tracked in git)
 docs/pi-session-*.html
+.claude/

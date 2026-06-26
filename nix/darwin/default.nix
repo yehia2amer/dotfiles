@@ -51,7 +51,8 @@ in
   system.defaults = {
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
-      AppleInterfaceStyleSwitchesAutomatically = true;
+      AppleInterfaceStyle = "Dark";
+      AppleInterfaceStyleSwitchesAutomatically = false;
     };
     dock = {
       autohide = false;

@@ -6,8 +6,8 @@
 {{- if eq .os "darwin" }}
     "NODE_EXTRA_CA_CERTS": "{{ .chezmoi.homeDir }}/.claude/certs/corporate-ca-bundle.pem",
 {{- end }}
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6[1m]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-8[1m]",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "bedrock.anthropic.claude-haiku-4-5",
     "DISABLE_PROMPT_CACHING": "1"
   },
@@ -34,7 +34,47 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '{{ .chezmoi.homeDir }}/.claude/hooks/gitnexus/gitnexus-hook.cjs'",
+            "timeout": 10,
+            "statusMessage": "Enriching with GitNexus graph context..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '{{ .chezmoi.homeDir }}/.claude/hooks/gitnexus/gitnexus-hook.cjs'",
+            "timeout": 10,
+            "statusMessage": "Checking GitNexus index freshness..."
+          }
+        ]
+      }
     ]
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "node ~/.claude/statusline.js",
+    "padding": 0
+  }
 }

@@ -318,7 +318,7 @@ def sync_claude(chat_models: list[dict], dry_run: bool):
     env = settings.setdefault("env", {})
     changes = []
     mapping = {
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-6",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-8",
         "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL": "bedrock.anthropic.claude-haiku-4-5",
     }

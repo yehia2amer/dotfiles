@@ -241,12 +241,14 @@ end
 -- ============================================================
 -- Keybindings
 -- ============================================================
+local act = wezterm.action
+
 config.keys = {
   -- CTRL+SHIFT+L opens the launcher menu (shells + SSH hosts)
   {
     key = 'l',
     mods = 'CTRL|SHIFT',
-    action = wezterm.action.ShowLauncherArgs {
+    action = act.ShowLauncherArgs {
       flags = 'FUZZY|LAUNCH_MENU_ITEMS',
     },
   },
@@ -273,7 +275,28 @@ config.keys = {
       end),
     },
   },
+
+  -- Move current tab left/right (Cmd+Shift+Arrow)
+  {
+    key = 'LeftArrow',
+    mods = 'CMD|SHIFT',
+    action = act.MoveTabRelative(-1),
+  },
+  {
+    key = 'RightArrow',
+    mods = 'CMD|SHIFT',
+    action = act.MoveTabRelative(1),
+  },
 }
+
+-- Move current tab to position 1–8 (Cmd+Option+N)
+for i = 1, 8 do
+  table.insert(config.keys, {
+    key = tostring(i),
+    mods = 'CMD|ALT',
+    action = act.MoveTab(i - 1),
+  })
+end
 
 -- ============================================================
 -- Misc
