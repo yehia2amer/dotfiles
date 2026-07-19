@@ -4,12 +4,12 @@ model = "openai.gpt-5.5"
 model_provider = "openai_compatible"
 personality = "pragmatic"
 model_reasoning_effort = "medium"
+model_context_window = 1050000
 
 [model_providers.openai_compatible]
 name = "LiteLLM OpenAI-compatible"
 base_url = "{{ $baseUrl }}/v1"
 env_key = "OPENAI_API_KEY"
-model_context_window = 1050000
 
 [mcp_servers.gitnexus]
 command = "{{ .chezmoi.homeDir }}/.bun/bin/gitnexus"
