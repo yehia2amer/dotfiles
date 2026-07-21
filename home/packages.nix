@@ -47,7 +47,8 @@
     krew
     kubecm
     kubeconform
-    kubectl
+    # minikube also ships a kubectl wrapper; prefer the dedicated package.
+    (pkgs.lib.hiPrio kubectl)
     kubectl-cnpg
     kubectx
     kubie

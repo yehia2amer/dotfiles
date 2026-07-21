@@ -1,0 +1,21 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+"""chezmoi run_after hook: refresh the Codex custom model catalog after every
+`chezmoi apply`. Non-fatal — a failed refresh (no network / no API key) must not
+break the apply. The generator is itself fail-safe (it never overwrites a good
+catalog with a broken or empty one)."""
+import subprocess
+import sys
+from pathlib import Path
+
+GEN = Path("{{ .chezmoi.homeDir }}/.agents/scripts/build-codex-catalog.py")
+
+if GEN.exists():
+    result = subprocess.run(["uv", "run", str(GEN)], check=False)
+    if result.returncode != 0:
+        print("codex catalog refresh skipped/failed (non-fatal)", file=sys.stderr)
+# Always succeed so `chezmoi apply` is never blocked by this hook.
+sys.exit(0)

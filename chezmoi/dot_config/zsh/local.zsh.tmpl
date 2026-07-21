@@ -66,6 +66,12 @@ alias diff="delta"
 # ── Container runtime (podman as docker drop-in) ──
 export KIND_EXPERIMENTAL_PROVIDER=podman
 
+{{- if eq .os "darwin" }}
+# ── GlobalProtect VPN ──
+alias stop_gp='sudo launchctl bootout gui/$(id -u) /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*'
+alias start_gp='sudo launchctl bootstrap gui/$(id -u) /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*'
+{{- end }}
+
 # ── Reminder aliases (incompatible syntax — use the modern tool) ──
 # Terminal-only: agents get real grep/find/sed.
 if [[ ("$TERM_PROGRAM" == "ghostty" || "$TERM_PROGRAM" == "WezTerm" || "$TERM_PROGRAM" == "Alacritty") && -t 0 ]]; then

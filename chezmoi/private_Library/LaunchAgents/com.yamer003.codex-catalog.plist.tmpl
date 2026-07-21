@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.yamer003.codex-catalog</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/etc/profiles/per-user/yamer003/bin/uv</string>
+        <string>run</string>
+        <string>{{ .chezmoi.homeDir }}/.agents/scripts/build-codex-catalog.py</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/etc/profiles/per-user/yamer003/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <!-- Weekly: Mondays at 09:17 local. Off the :00 mark on purpose. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>17</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>{{ .chezmoi.homeDir }}/.codex/log/codex-catalog.launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>{{ .chezmoi.homeDir }}/.codex/log/codex-catalog.launchd.log</string>
+</dict>
+</plist>
