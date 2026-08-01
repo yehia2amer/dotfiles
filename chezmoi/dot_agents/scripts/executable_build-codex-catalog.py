@@ -21,7 +21,8 @@ Sources, in the order they contribute:
      efforts for families dropped from the current bundle (e.g. gpt-5.3-codex).
   3. `GET {base}/models` (Bearer + browser UA) -> authoritative routable slugs.
      Falls back to the CSV `Model Name` column when unreachable.
-  4. `Models_List_EMEA.csv` -> real Max Input / Max Output tokens per model.
+  4. `~/.pi/agent/models.json` -> current proxy context and modality metadata.
+  5. `Models_List_EMEA.csv` -> fallback Max Input / Max Output tokens per model.
 
 Reasoning efforts resolve per base family: bundled > legacy-cache > name
 heuristic. The build prints which source supplied each openai model's efforts
@@ -42,9 +43,11 @@ import csv
 import json
 import os
 import re
+import select
 import shutil
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime
@@ -56,6 +59,7 @@ HOME = Path.home()
 CODEX_HOME = HOME / ".codex"
 DEFAULT_OUT = CODEX_HOME / "models_catalog.json"
 DEFAULT_CSV = HOME / "Downloads" / "Models_List_EMEA.csv"
+PI_MODELS = HOME / ".pi" / "agent" / "models.json"
 API_KEY_ENV = "OPENAI_API_KEY"
 API_KEY_KEYCHAIN_ITEM = "litellm-api-key"  # fallback when env is unset (launchd)
 BROWSER_UA = (
@@ -147,19 +151,69 @@ def load_bundled() -> list[dict]:
 
 
 def validate_with_codex(path: Path) -> int:
-    """Load the catalog through Codex and return the model count it renders.
-    0 means Codex rejected it. This is the same check the shell wrapper did,
-    now inline so no bash/jq is needed."""
-    proc = subprocess.run(
-        [codex_bin(), "debug", "models", "-c", f"model_catalog_json={path}"],
-        capture_output=True, text=True, check=False,
+    """Load the catalog through the app-server used by Codex Relay."""
+    proc = subprocess.Popen(
+        [codex_bin(), "-c", f"model_catalog_json={path}",
+         "app-server", "--listen", "stdio://"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,
     )
-    if proc.returncode != 0:
-        return 0
+    assert proc.stdin is not None
+    assert proc.stdout is not None
+
+    def request(request_id: int, method: str, params: dict) -> dict:
+        proc.stdin.write(json.dumps({
+            "id": request_id,
+            "method": method,
+            "params": params,
+        }) + "\n")
+        proc.stdin.flush()
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            readable, _, _ = select.select(
+                [proc.stdout], [], [], deadline - time.monotonic()
+            )
+            if not readable:
+                break
+            line = proc.stdout.readline()
+            if not line:
+                break
+            message = json.loads(line)
+            if message.get("id") != request_id:
+                continue
+            if message.get("error"):
+                error = message["error"]
+                raise RuntimeError(error.get("message", str(error)))
+            return message.get("result") or {}
+        raise RuntimeError(f"Codex app-server timed out during {method}")
+
     try:
-        return len(json.loads(proc.stdout).get("models", []))
-    except json.JSONDecodeError:
+        request(1, "initialize", {
+            "clientInfo": {
+                "name": "catalog-validator",
+                "title": "Catalog Validator",
+                "version": "1",
+            },
+            "capabilities": {"experimentalApi": True},
+        })
+        result = request(2, "model/list", {
+            "limit": 1000,
+            "includeHidden": True,
+        })
+        return len(result.get("data", []))
+    except (json.JSONDecodeError, OSError, RuntimeError) as exc:
+        print(f"Codex catalog validation failed: {exc}", file=sys.stderr)
         return 0
+    finally:
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
 
 
 def load_legacy_cache() -> list[dict]:
@@ -238,6 +292,24 @@ def load_csv(path: Path) -> dict:
                     by_family[fam] = info
     return {"by_name": by_name, "by_canonical": by_canonical,
             "by_family": by_family, "chat_names": chat_names}
+
+
+def load_pi_metadata(path: Path = PI_MODELS) -> dict[str, dict]:
+    """Load exact per-model limits/modalities from Pi's freshly synced catalog."""
+    try:
+        data = json.loads(path.read_text())
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return {}
+    models = data.get("providers", {}).get("litellm", {}).get("models", [])
+    return {
+        model["id"]: {
+            "max_input": model.get("contextWindow"),
+            "max_output": model.get("maxTokens"),
+            "input": model.get("input"),
+        }
+        for model in models
+        if isinstance(model, dict) and model.get("id")
+    }
 
 
 def _to_int(value) -> int | None:
@@ -335,6 +407,20 @@ def resolve_efforts(slug: str, lookup: dict) -> tuple[list, str | None, str]:
 # ── Entry construction ─────────────────────────────────────────────────────────
 
 
+def normalize_entry_schema(entry: dict) -> dict:
+    """Restore required fields omitted by `codex debug models --bundled`.
+
+    Codex 0.145 accepts `supports_reasoning_summaries` in its bundled catalog
+    but leaves it out of the debug JSON export, while requiring it when parsing
+    a custom catalog. Infer the exported value from the reasoning capabilities.
+    """
+    entry.setdefault(
+        "supports_reasoning_summaries",
+        bool(entry.get("supported_reasoning_levels")),
+    )
+    return entry
+
+
 def pick_template(slug: str, bundled: list[dict]) -> dict:
     """A full bundled entry to clone. Prefer the entry whose slug matches this
     model's base family (full fidelity: tool_mode, verbosity, web_search type);
@@ -347,7 +433,7 @@ def pick_template(slug: str, bundled: list[dict]) -> dict:
     return by_slug.get("gpt-5.5") or (bundled[0] if bundled else {})
 
 
-def build_entry(slug: str, bundled: list[dict], csv_idx: dict,
+def build_entry(slug: str, bundled: list[dict], pi_idx: dict, csv_idx: dict,
                 effort_lookup: dict) -> tuple[dict, str]:
     """Clone a template and override identity/token/modality/effort fields.
     Returns (entry, effort_source)."""
@@ -355,9 +441,10 @@ def build_entry(slug: str, bundled: list[dict], csv_idx: dict,
 
     entry = json.loads(json.dumps(pick_template(slug, bundled)))  # deep copy
 
-    # Token limits: exact name row -> canonical row -> base-family row (dated
-    # CSV variants) -> family-matched bundled template's own real ctx -> fallback.
-    info = (csv_idx["by_name"].get(slug)
+    # Token limits: freshly synced Pi metadata -> exact CSV row -> canonical
+    # row -> base-family row -> bundled family template -> conservative fallback.
+    info = (pi_idx.get(slug)
+            or csv_idx["by_name"].get(slug)
             or csv_idx["by_canonical"].get(canonical_from_slug(slug))
             or csv_idx["by_family"].get(base_family(slug)))
     # Only trust the template ctx when it is a family match (else it's the
@@ -367,7 +454,9 @@ def build_entry(slug: str, bundled: list[dict], csv_idx: dict,
                 if base_family(slug) in by_slug else None) or _TOKEN_FALLBACK_CTX
     ctx = (info or {}).get("max_input") or tmpl_ctx
 
-    modalities = ["text", "image"] if VISION_NAME_RE.search(slug.lower()) else ["text"]
+    modalities = ((info or {}).get("input")
+                  or (["text", "image"] if VISION_NAME_RE.search(slug.lower())
+                      else ["text"]))
 
     entry.update({
         "slug": slug,
@@ -383,7 +472,7 @@ def build_entry(slug: str, bundled: list[dict], csv_idx: dict,
     # Effective ctx percent must not exceed 100 if template had a smaller model.
     if "effective_context_window_percent" not in entry:
         entry["effective_context_window_percent"] = 100
-    return entry, effort_source
+    return normalize_entry_schema(entry), effort_source
 
 
 # ── Main ────────────────────────────────────────────────────────────────────
@@ -401,13 +490,14 @@ def main() -> int:
                     help="Skip the `codex debug models` validation before install.")
     args = ap.parse_args()
 
-    bundled = load_bundled()
+    bundled = [normalize_entry_schema(m) for m in load_bundled()]
     if not bundled:
         print("ERROR: could not load bundled catalog from codex.", file=sys.stderr)
         return 1
     legacy = load_legacy_cache()
     effort_lookup = build_effort_lookup(bundled, legacy)
     csv_idx = load_csv(args.csv)
+    pi_idx = load_pi_metadata()
 
     base_url = keychain("work-genai-base-url")
     api_key = resolve_api_key()
@@ -440,7 +530,7 @@ def main() -> int:
     for slug in proxy_slugs:
         if slug in seen:
             continue
-        entry, src = build_entry(slug, bundled, csv_idx, effort_lookup)
+        entry, src = build_entry(slug, bundled, pi_idx, csv_idx, effort_lookup)
         entries.append(entry)
         seen.add(slug)
         effort_stats[src] = effort_stats.get(src, 0) + 1
@@ -454,6 +544,7 @@ def main() -> int:
     print(f"Slug source          : {slug_source} ({len(proxy_slugs)} chat slugs)")
     print(f"Bundled models kept  : {len(bundled_slugs)} -> {', '.join(bundled_slugs)}")
     print(f"Legacy cache families: {len({base_family(m['slug']) for m in legacy})}")
+    print(f"Pi metadata entries   : {len(pi_idx)}")
     print(f"Total catalog entries: {len(entries)}")
     prefixes: dict[str, int] = {}
     for e in entries:

@@ -5,6 +5,8 @@
     ./packages-darwin.nix
     ./packages-linux.nix
     ./shell/nushell.nix
+    ./shell/zsh.nix
+    ./shell/fish.nix
     ./programs/git.nix
     ./programs/starship.nix
     ./programs/atuin.nix
@@ -13,6 +15,7 @@
     ./programs/fzf.nix
     ./programs/zoxide.nix
     ./programs/gh.nix
+    ./programs/secrets.nix
   ];
 
 

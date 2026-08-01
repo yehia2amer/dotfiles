@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.73.1",
+  "lastChangelogVersion": "0.79.3",
   "defaultProvider": "litellm",
-  "defaultModel": "bedrock.anthropic.claude-opus-4-6",
+  "defaultModel": "vertex_ai.anthropic.claude-opus-5",
   "defaultThinkingLevel": "high",
   "packages": [
     "npm:pi-gitnexus"

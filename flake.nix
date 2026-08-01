@@ -14,7 +14,62 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    systems.url = "github:nix-systems/default-linux";
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
+    homebrew-freetonik-tap = {
+      url = "github:freetonik/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-gimlet-capacitor = {
+      url = "github:gimlet-io/homebrew-capacitor";
+      flake = false;
+    };
+
+    homebrew-jundot-omlx = {
+      url = "github:jundot/omlx";
+      flake = false;
+    };
+
+    homebrew-multica-tap = {
+      url = "github:multica-ai/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-surrealdb-tap = {
+      url = "github:surrealdb/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-theykk-tap = {
+      url = "github:TheYkk/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-us-tap = {
+      url = "github:us/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-veracode-tap = {
+      url = "github:veracode/homebrew-tap";
+      flake = false;
+    };
+
+    homebrew-wouterdebie-tap = {
+      url = "github:wouterdebie/homebrew-tap";
+      flake = false;
+    };
 
     vscode-server.url = "github:nix-community/nixos-vscode-server";
 
@@ -24,7 +79,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, nixos-wsl, vscode-server, ... }:
+  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, nix-homebrew, nixos-wsl, vscode-server, ... }:
   let
     systems = {
       darwin = "aarch64-darwin";
@@ -35,7 +90,9 @@
     # ── macOS (nix-darwin + Home Manager) ──
     darwinConfigurations."MacBookProM3" = nix-darwin.lib.darwinSystem {
       system = systems.darwin;
+      specialArgs = { inherit inputs; };
       modules = [
+        nix-homebrew.darwinModules.nix-homebrew
         ./nix/darwin
         home-manager.darwinModules.home-manager
         {

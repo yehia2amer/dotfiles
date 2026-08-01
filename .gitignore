@@ -3,6 +3,8 @@ result
 *.DS_Store
 .chezmoistate*
 .cache/
+__pycache__/
+*.py[cod]
 
 # Upgrade logs (rotated, local only)
 .logs/

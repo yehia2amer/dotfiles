@@ -31,11 +31,6 @@
       git_branch.format = "\\[[$symbol$branch]($style)\\]";
       git_status.format = "([\\[$all_status$ahead_behind\\]]($style))";
 
-      docker_context = {
-        format = "\\[[$symbol$context]($style)\\]";
-        disabled = false;
-      };
-
       kubernetes = {
         format = "\\[[$symbol($context) - ($namespace)]($style)\\]";
         disabled = false;

@@ -1,13 +1,35 @@
 # Shared packages — cross-platform CLI tools
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   home.packages = with pkgs; [
 
     # AI & ML
+    beads
+    claude-code
     gollama
+    github-copilot-cli
     ollama
+    rtk
+    (writeShellScriptBin "claude-remote" ''
+      set -euo pipefail
+      umask 077
+
+      happy_bin="$HOME/.local/bin/happy"
+      if [[ ! -x "$happy_bin" ]]; then
+        echo "Happy is not installed at $happy_bin." >&2
+        echo "Install it with: npm install -g --prefix \"$HOME/.local\" happy@1.2.0" >&2
+        exit 1
+      fi
+
+      exec "$happy_bin" claude \
+        --happy-starting-mode remote \
+        --permission-mode default \
+        --model bedrock.anthropic.claude-opus-5 \
+        "$@"
+    '')
 
     # CLI Utilities
+    ast-grep
     bat
     bottom
     coreutils
@@ -47,8 +69,7 @@
     krew
     kubecm
     kubeconform
-    # minikube also ships a kubectl wrapper; prefer the dedicated package.
-    (pkgs.lib.hiPrio kubectl)
+    (lib.hiPrio kubectl)
     kubectl-cnpg
     kubectx
     kubie
@@ -73,16 +94,27 @@
     nodejs
     python313
     rustc
+    typescript-go
 
     # Development - Package Managers
     fnm
     pipenv
     pnpm
-    poetry
+    (if stdenv.isDarwin then
+      (poetry.overridePythonAttrs (old: {
+        # nixpkgs-unstable: output formatting differs on Darwin; 3,065 other tests pass.
+        disabledTests = (old.disabledTests or [ ]) ++ [
+          "test_execute_executes_a_batch_of_operations"
+          "test_execute_prints_warning_for_yanked_package"
+        ];
+      }))
+    else poetry)
     uv
     yarn
 
     # Development - Tools
+    android-tools
+    androidenv.androidPkgs.ndk-bundle
     automake
     biome
     cmake
@@ -101,6 +133,7 @@
     maven
     pkgconf
     pre-commit
+    protobuf
     pyright
     ruff
 
@@ -115,6 +148,7 @@
     mdbook
     mkdocs
     mpv
+    poppler
     scrcpy
 
     # Networking
@@ -129,6 +163,7 @@
         tags = [ "cmount" ];
       }))
     else rclone)
+    rsync
     sshpass
 
     # Security & Scanning

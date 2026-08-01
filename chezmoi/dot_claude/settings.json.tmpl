@@ -4,14 +4,14 @@
     "ANTHROPIC_BASE_URL": "{{ keyring "work-genai-base-url" "yamer003" }}",
     "ANTHROPIC_AUTH_TOKEN": "{{ keyring "litellm-api-key" "yamer003" }}",
 {{- if eq .os "darwin" }}
-    "NODE_EXTRA_CA_CERTS": "{{ .chezmoi.homeDir }}/.claude/certs/corporate-ca-bundle.pem",
+    "NODE_EXTRA_CA_CERTS": "/etc/nix/ca-bundle-work.crt",
 {{- end }}
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-4-6[1m]",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-4-8[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "bedrock.anthropic.claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "bedrock.anthropic.claude-opus-5",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "bedrock.anthropic.claude-haiku-4-5",
     "DISABLE_PROMPT_CACHING": "1"
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "attribution": {
     "commit": "",
     "pr": "",

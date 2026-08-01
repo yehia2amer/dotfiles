@@ -71,8 +71,15 @@ OTHER_PROVIDERS = {
 # URL for litellm's model pricing/capabilities database
 LITELLM_PRICES_URL = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
 
-# GenAI web app URL (for opening Chrome if needed)
-GENAI_WEB_URL = "https://genai-sharedservice-emea.pwcinternal.com/genai"
+# GenAI web app URL (for opening Chrome if needed) — from keychain; no corp host in repo
+GENAI_WEB_URL = subprocess.run(
+    ["security", "find-generic-password", "-a", "yamer003", "-s", "work-genai-web-url", "-w"],
+    capture_output=True, text=True,
+).stdout.strip()
+
+# Host portion (e.g. host.example.com) used to locate the right Chrome tab
+from urllib.parse import urlparse as _urlparse
+GENAI_WEB_HOST = _urlparse(GENAI_WEB_URL).netloc if GENAI_WEB_URL else ""
 
 # Non-chat model patterns to exclude when using /models fallback (Strategy 2)
 NON_CHAT_PATTERNS = {
@@ -119,12 +126,12 @@ def get_jwt_from_chrome() -> str | None:
 def _extract_token_from_chrome() -> str | None:
     """Try to extract the id_token from a Chrome tab with the GenAI page."""
     import subprocess as sp
-    script = '''
+    script = f'''
     tell application "Google Chrome"
         set tabList to every tab of every window
         repeat with t in tabList
             repeat with aTab in t
-                if URL of aTab contains "genai-sharedservice-emea.pwcinternal.com" then
+                if URL of aTab contains "{GENAI_WEB_HOST}" then
                     return execute aTab javascript "localStorage.getItem('tokens')"
                 end if
             end repeat

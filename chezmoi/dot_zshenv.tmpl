@@ -37,7 +37,7 @@ export PATH="/usr/local/share/dotnet:$PATH"
 {{- end }}
 
 {{- if .work }}
-CA={{ keyring "work-ca-cert-path" "yamer003" }}
+CA="/etc/nix/ca-bundle-work.crt"  # merged public+corporate CA bundle (non-secret); works VPN on/off
 if [ -f "$CA" ]; then
   export SSL_CERT_FILE="$CA"
   export REQUESTS_CA_BUNDLE="$CA"

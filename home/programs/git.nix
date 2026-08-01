@@ -8,7 +8,8 @@
     settings = {
       user = {
         name = "Yehia Amer";
-        email = "yehamer@gmail.com";
+        email = "yehamer@gmail.com";  # personal default; overridden under ~/src/work/
+        useConfigOnly = true;          # never fabricate identity from username@host
       };
       init.defaultBranch = "main";
       pull.rebase = false;
@@ -20,6 +21,14 @@
       include.path = "~/.config/git/local.gitconfig";
     };
   };
+
+  # Location-based identity (Phase 3). Uses programs.git.includes (not settings)
+  # because HM renders these with lib.mkAfter — i.e. AFTER the base [user] block —
+  # so a matching gitdir include correctly overrides the personal default.
+  programs.git.includes = [
+    { condition = "gitdir:~/src/personal/"; path = "~/.gitconfig-personal"; }
+    { condition = "gitdir:~/src/work/"; path = "~/.gitconfig-work"; }
+  ];
 
   programs.delta = {
     enable = true;

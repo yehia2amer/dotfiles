@@ -1,0 +1,6 @@
+{{- /* Work git identity — used for repos under ~/src/work/ (Phase 3).
+       Email comes from the login Keychain (see scripts/setup-work-keychain.sh),
+       so no work address is committed to this repo. */ -}}
+[user]
+	name = Yehia Amer
+	email = {{ keyring "work-email" "yamer003" }}

@@ -8,7 +8,7 @@ fish_add_path -g $HOME/.local/bin
 fish_add_path -g $HOME/.krew/bin
 fish_add_path -g /opt/podman/bin
 
-# ── Container runtime (podman as docker drop-in) ──
+# ── Container runtime (Podman) ──
 set -gx KIND_EXPERIMENTAL_PROVIDER podman
 fish_add_path -g $HOME/.bun/bin
 fish_add_path -g $HOME/.npm-global/bin

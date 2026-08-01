@@ -1,10 +1,10 @@
 ---
-description: Sync pi's model list with the PwC GenAI LiteLLM proxy. Use when told new models are available, when model details may have changed, or when the user says "update models", "sync models", or "refresh model list".
+description: Sync pi's model list with the work GenAI LiteLLM proxy. Use when told new models are available, when model details may have changed, or when the user says "update models", "sync models", or "refresh model list".
 ---
 
 # Update Pi Models
 
-Sync pi's model list with the PwC GenAI LiteLLM proxy.
+Sync pi's model list with the work GenAI LiteLLM proxy.
 
 ## What it does
 
@@ -27,7 +27,7 @@ python3 ~/.agents/scripts/update-pi-models.py
 ### How it gets the token (automatic)
 
 On macOS, the script **automatically extracts the JWT from Chrome**:
-1. Looks for an open Chrome tab at `genai-sharedservice-emea.pwcinternal.com`
+1. Looks for an open Chrome tab at the work GenAI portal (host taken from the `work-genai-base-url` keychain item)
 2. Reads `localStorage.tokens` → extracts the `id_token`
 3. If no tab is found, opens the GenAI page and waits for SSO to complete
 

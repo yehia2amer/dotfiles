@@ -1,4 +1,6 @@
 Path,Owner,Category,Rationale
+docs/nix-homebrew-migration-plan.md,Repository documentation,DOCS,Staged declarative Homebrew migration and rollback procedure
+scripts/network-diagnostics.py,Repository utility,SCRIPT,macOS LAN WAN DNS bridge topology history comparison and bufferbloat diagnostics
 ~/.bash_history,NOT TRACKED,IGNORE,Shell history — runtime state
 ~/.bash_profile,Chezmoi (dot_bash_profile.tmpl),CHEZMOI,Bash login init — per-machine template
 ~/.bash-preexec.sh,NOT TRACKED,IGNORE,Library auto-downloaded by atuin
@@ -46,7 +48,7 @@ Path,Owner,Category,Rationale
 ~/.config/nushell/config.nu,Chezmoi (dot_config/nushell/config.nu),CHEZMOI,Nushell config (38KB) — actively edited
 ~/.config/nushell/env.nu,Chezmoi (dot_config/nushell/env.nu),CHEZMOI,Nushell env — secrets from Keychain
 ~/.config/nushell/scripts/,Chezmoi (dot_config/nushell/scripts/),CHEZMOI,Custom nushell scripts
-~/.config/nvim/,Chezmoi (dot_config/nvim/),CHEZMOI,Full LazyVim config — lazy-lock.json mutates
+~/.config/nvim/,Chezmoi (dot_config/nvim/),CHEZMOI,Full LazyVim config — lazy-lock.json mutates; TypeScript uses Nix-managed tsgo 7 LSP
 ~/.config/opencode/AGENTS.md,Chezmoi (dot_config/opencode/AGENTS.md),CHEZMOI,OpenCode agent instructions
 ~/.config/opencode/*.db*,NOT TRACKED,IGNORE,SQLite databases — runtime state
 ~/.config/starship/starship.toml,Home Manager (programs/starship.nix),HOME-MGR,Prompt config — stable large TOML as Nix attrset
@@ -59,7 +61,7 @@ Path,Owner,Category,Rationale
 ~/.continue/,Chezmoi (dot_continue/),CHEZMOI,Continue AI IDE config
 ~/.curlrc,NOT TRACKED,REPLACED,Corp CA path — now in .zshenv template
 ~/.cursor/mcp.json,Chezmoi (dot_cursor/mcp.json),CHEZMOI,Cursor MCP server definitions
-~/.docker/config.json,Chezmoi (dot_docker/config.json.tmpl),CHEZMOI,Registry config — credsStore=osxkeychain no secrets
+~/.docker/config.json,DELETED,ELIMINATED,Docker and Colima removed; registry configuration no longer managed
 ~/.git-credentials,DELETED,ELIMINATED,Switched to credential.helper=osxkeychain — file removed
 ~/.gitignore,Chezmoi (dot_gitignore),CHEZMOI,Home-dir gitignore (beads rules)
 ~/.gitignore_global,Home Manager (programs/git.nix ignores),HOME-MGR,Global gitignore — stable list
@@ -104,7 +106,8 @@ Path,Owner,Category,Rationale
 ~/.codewiki/credentials.json,NOT TRACKED,SECRET,API key — stored in Keychain referenced by template
 ~/.context7/,NOT TRACKED,IGNORE,OAuth tokens — short-lived auto-refreshed
 ~/.dns-bench/config.toml,Chezmoi (dot_dns-bench/config.toml),CHEZMOI,DNS benchmarking config
-~/.docker/,Chezmoi (dot_docker/config.json.tmpl),CHEZMOI,See above — credsStore handles auth
+~/.docker/,DELETED,ELIMINATED,Docker and Colima runtime state removed; Podman retained
+~/.local/bin/docker,DELETED,ELIMINATED,Docker-to-Podman compatibility wrapper removed with Docker tooling
 ~/.gemini/,NOT TRACKED,IGNORE,Gemini runtime state
 ~/.gitnexus/,NOT TRACKED,IGNORE,GitNexus index — auto-generated per repo
 ~/.gitlab/,NOT TRACKED,IGNORE,Activity timestamps not credentials

@@ -1,12 +1,23 @@
+{{- /* SSH config
+   Personal keys: private key lives ONLY in the Bitwarden vault, signed via the
+   Bitwarden SSH Agent socket. No personal private key is ever a file on disk.
+   Work keys (D1): managed outside Bitwarden; their key files are restored
+   separately and only referenced on work machines. */ -}}
 {{- if eq .os "darwin" -}}
+# ── Global hardening ──
 Host *
-  AddKeysToAgent yes
-  UseKeychain yes
+  AddKeysToAgent no
+  ForwardAgent no
 
-Host github.com
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_ed25519
+# ── Personal GitHub — key held in Bitwarden SSH Agent ──
+# IdentityFile points at the PUBLIC key so `IdentitiesOnly yes` selects exactly
+# this identity from the Bitwarden agent (which may also hold other keys).
+Host github.com personal-github-projects
+  HostName github.com
+  User git
+  IdentityAgent ~/.bitwarden-ssh-agent.sock
+  IdentityFile ~/.ssh/public/github-personal.pub
+  IdentitiesOnly yes
 {{- end }}
 
 {{- if eq .machine "nixos-wsl" }}
@@ -19,14 +30,8 @@ Host github.com
   ProxyCommand nc -X connect -x 127.0.0.1:3128 %h %p
 {{- end }}
 
-Host personal-github-projects
-  HostName github.com
-  User git
-  IdentityFile ~/.ssh/id_ed25519_github_private
-  IdentitiesOnly yes
-
 {{- if .work }}
-
+# ── Work hosts (D1: outside Bitwarden; key files restored separately) ──
 Host msc-ado-projects
   HostName ssh.dev.azure.com
   User git

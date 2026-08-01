@@ -24,6 +24,10 @@ export PATH="/usr/local/share/dotnet:$PATH"
 if [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+# ── GlobalProtect VPN ──
+alias stop_gp='sudo launchctl bootout gui/$(id -u) /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*'
+alias start_gp='sudo launchctl bootstrap gui/$(id -u) /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*'
 {{- end }}
 
 # ── Google Cloud SDK ──
@@ -39,7 +43,7 @@ fi
 
 {{- if .work }}
 # ── Corporate CA certificates ──
-CA={{ keyring "work-ca-cert-path" "yamer003" }}
+CA="/etc/nix/ca-bundle-work.crt"  # merged public+corporate CA bundle (non-secret); works VPN on/off
 if [ -f "$CA" ]; then
   export SSL_CERT_FILE="$CA"
   export REQUESTS_CA_BUNDLE="$CA"
@@ -63,7 +67,7 @@ alias top="btm"
 alias ps="procs"
 alias diff="delta"
 
-# ── Container runtime (podman as docker drop-in) ──
+# ── Container runtime (Podman) ──
 export KIND_EXPERIMENTAL_PROVIDER=podman
 
 {{- if eq .os "darwin" }}
@@ -163,8 +167,8 @@ oc() {
 # ── AI tool env vars (keys from Keychain) ──
 export OPENAI_API_KEY="$(security find-generic-password -a yamer003 -s litellm-api-key -w 2>/dev/null)"
 export OPENAI_BASE_URL="$(security find-generic-password -a yamer003 -s work-genai-base-url -w 2>/dev/null)/v1"
-export OPENAI_MODEL="bedrock.anthropic.claude-sonnet-4-6"
-export OPENAI_MODEL_ID="openai.gpt-5.4"
+export OPENAI_MODEL="bedrock.anthropic.claude-sonnet-5"
+export OPENAI_MODEL_ID="openai.gpt-5.6"
 
 # olmocr shortcut
 alias ocr="olmocr"
